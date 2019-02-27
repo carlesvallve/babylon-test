@@ -7,6 +7,8 @@
     "start": "webpack-dev-server",
     "build:dev": "",
     "build:prod": "webpack -p --define process.env.NODE_ENV='\"production\"' --progress --colors",
+    "build:zip": "webpack -p --define process.env.NODE_ENV='\"production\"' --progress --colors && bash scripts/zip.sh prod",
+    "zip": "bash scripts/zip.sh",
     "test": "test"
   },
   "author": "Carles Vallve",
