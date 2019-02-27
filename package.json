@@ -1,0 +1,22 @@
+{
+  "name": "babylon-test",
+  "version": "1.0.0",
+  "description": "Experimenting with babylon.js and webpack with ES6",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "test": "test"
+  },
+  "author": "Carles Vallve",
+  "license": "ISC",
+  "devDependencies": {
+    "@babylonjs/core": "^4.0.0-alpha.18",
+    "@babylonjs/inspector": "^4.0.0-alpha.18",
+    "@babylonjs/materials": "^4.0.0-alpha.18",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  }
+}
