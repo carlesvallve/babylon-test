@@ -1,6 +1,6 @@
 # babylon-test
 Experimenting with babylonjs and webpack in ES6
-https://doc.babylonjs.com/features/es6_support#using-webpack
+see: https://doc.babylonjs.com/features/es6_support#using-webpack
 
 ## Installation
 
