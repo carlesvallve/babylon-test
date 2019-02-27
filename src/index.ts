@@ -12,8 +12,6 @@ const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 const engine = new Engine(canvas);
 
 
-
-
 // create a scene
 const scene = testScene(canvas, engine);
 // const scene = shadowScene(canvas, engine);

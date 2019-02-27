@@ -17,8 +17,10 @@
     "@babylonjs/core": "^4.0.0-alpha.18",
     "@babylonjs/inspector": "^4.0.0-alpha.18",
     "@babylonjs/materials": "^4.0.0-alpha.18",
+    "async-retry": "^1.2.3",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
+    "webfontloader": "^1.6.28",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
