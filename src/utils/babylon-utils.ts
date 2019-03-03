@@ -4,28 +4,32 @@ import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/";
 import { LensFlareSystem, LensFlare } from "@babylonjs/core/LensFlares";
+import { AssetsManager } from "@babylonjs/core/"
 
+export const loadMesh = (scene, path, fileName) => {
+  var assetsManager = new AssetsManager(scene);
+  var meshTask = assetsManager.addMeshTask(`${fileName} task`, '', path, fileName);
+
+  meshTask.onSuccess = function (task) {
+    task.loadedMeshes[0].position = Vector3.Zero();
+  }
+  meshTask.onError = function (task, message, exception) {
+      console.log(message, exception);
+  }
+}
 
 export const setArcCamera = (canvas, scene, ortographic = null, options = {
-  alpha: radians(0), // 0.785398 * 2,
-  beta: radians(0), // 0.785398, 
-  radius: 10,
+  alpha: 0, // radians(0), // 0.785398 * 2,
+  beta: 0, // radians(0), // 0.785398, 
+  radius: 30,
   target: new Vector3(0, 0, 0),
-  pos: new Vector3(50, 50, -50),
+  pos: new Vector3(10, 10, -10),
 }) => {
   const  { alpha, beta, radius, target, pos } = options;
 
-  const camera = new ArcRotateCamera("Camera", alpha, beta, radius, target, scene, )
+  const camera = new ArcRotateCamera("Camera", 0, 0, radius, target, scene, )
   camera.setPosition(pos);
   camera.attachControl(canvas, true);
-
-  if (ortographic) {
-    camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
-    camera.orthoTop = ortographic;
-    camera.orthoBottom = -ortographic;
-    camera.orthoLeft = -ortographic;
-    camera.orthoRight = ortographic;
-  }
 
   return camera;
 }
