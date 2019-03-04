@@ -21,7 +21,7 @@ export const loadMesh = (scene, path, fileName) => {
 export const setArcCamera = (canvas, scene, ortographic = null, options = {
   alpha: 0, // radians(0), // 0.785398 * 2,
   beta: 0, // radians(0), // 0.785398, 
-  radius: 30,
+  radius: 10,
   target: new Vector3(0, 0, 0),
   pos: new Vector3(10, 10, -10),
 }) => {
@@ -46,7 +46,7 @@ export const setAmbientLight = (scene, options = {
 }
 
 export const setDirectionalLight = (scene, options = {
-  intensity: 0.5,
+  intensity: 1,
   pos: new Vector3(-5, 5, -5), // new Vector3(-40, 30, -40),
   dir: new Vector3(1, -1, 1), // new Vector3(1, -0.75, 1),
 }) => {

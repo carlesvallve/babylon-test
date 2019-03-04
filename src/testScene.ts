@@ -48,23 +48,58 @@ export const testScene = (canvas, engine) => {
   // });
 
   let models = [];
-  const baseUrl = 'assets/meshes/babylon/';
+  // let baseUrl = 'assets/meshes/babylon/';
+  // Promise.all([
+  //   SceneLoader.ImportMeshAsync(
+  //     null, baseUrl, "tree2.babylon", scene, onprogress = (e) => {
+  //       console.log(e.loaded, '/', e.total);
+  //     })
+  //     .then((result) => {
+  //       console.log(result)
+  //       result.meshes.map((mesh) => {
+  //         models.push(mesh);
+  //         shadowGenerator.getShadowMap().renderList.push(mesh);
+  //         // mesh.position = new Vector3(1, 1, 1);
+  //         mesh.translate(new Vector3(0, 1, 0), 0.45);
+  //       })
+  //       // result.meshes[0].position = new Vector3(1, 1, 1);
+  //       // result.meshes[0].scaling.scaleInPlace(1);
+  //   }),
+  //   // SceneLoader.ImportMeshAsync(null, baseUrl , "alien.glb", scene).then(function (result) {
+  //   //     result.meshes[0].position.x = -0.01;
+  //   //     result.meshes[0].position.y = -0.01;
+  //   //     result.meshes[0].scaling.scaleInPlace(0.25);
+  //   // })
+  // ]).then((result) => {
+  //     console.log('all mehes loaded!', result);
+  // });
+
+  // const baseUrl = 'assets/meshes/babylon/spaceships/';
   Promise.all([
-    SceneLoader.ImportMeshAsync(
-      null, baseUrl, "tree2.babylon", scene, onprogress = (e) => {
+    SceneLoader.ImportMeshAsync(null,
+      'assets/meshes/babylon/spaceships/', 'spaceships.babylon',
+      scene, onprogress = (e) => {
         console.log(e.loaded, '/', e.total);
-      })
-      .then((result) => {
+      }).then((result) => {
         console.log(result)
         result.meshes.map((mesh) => {
           models.push(mesh);
           shadowGenerator.getShadowMap().renderList.push(mesh);
-          // mesh.position = new Vector3(1, 1, 1);
-          mesh.translate(new Vector3(0, 1, 0), 0.45);
+          // mesh.translate(new Vector3(0, 1, 0), 0.45);
         })
-        // result.meshes[0].position = new Vector3(1, 1, 1);
-        // result.meshes[0].scaling.scaleInPlace(1);
     }),
+    // SceneLoader.ImportMeshAsync(null,
+    //   'assets/meshes/babylon/spaceships/', 'space-invader.babylon',
+    //   scene, onprogress = (e) => {
+    //     console.log(e.loaded, '/', e.total);
+    //   }).then((result) => {
+    //     console.log(result)
+    //     result.meshes.map((mesh) => {
+    //       models.push(mesh);
+    //       shadowGenerator.getShadowMap().renderList.push(mesh);
+    //       mesh.translate(new Vector3(0, 5, 0), 0.45);
+    //     })
+    // }),
     // SceneLoader.ImportMeshAsync(null, baseUrl , "alien.glb", scene).then(function (result) {
     //     result.meshes[0].position.x = -0.01;
     //     result.meshes[0].position.y = -0.01;
