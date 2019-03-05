@@ -2,13 +2,14 @@ import { Engine } from "@babylonjs/core/Engines/engine";
 // import "@babylonjs/core/Debug/debugLayer"; // Augments the scene with the debug methods
 // import "@babylonjs/inspector"; // Injects a local ES6 version of the inspector to prevent automatically relying on the none compatible version
 
-// import { terrainScene } from './terrainScene'
-import { followScene } from './followScene'
-import { bounceScene } from './bounceScene'
-import { testScene } from './testScene'
-import { shadowScene } from './shadowScene'
-import { sunScene } from './sunScene'
-
+import { terrainScene } from './scenes/terrainScene'
+import { followScene } from './scenes/followScene'
+import { bounceScene } from './scenes/bounceScene'
+import { testScene } from './scenes/testScene'
+import { shadowScene } from './scenes/shadowScene'
+import { sunScene } from './scenes/sunScene'
+import { loaderScene } from './scenes/loaderScene'
+import { emptyScene } from './scenes/emptyScene'
 
 // Get the canvas element from the DOM and Associate a Babylon Engine to it.
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
@@ -19,9 +20,11 @@ const engine = new Engine(canvas, true, {}, false);
 // const scene = terrainScene(canvas, engine);
 // const scene = followScene(canvas, engine);
 // const scene = bounceScene(canvas, engine);
-const scene = testScene(canvas, engine);
+// const scene = testScene(canvas, engine);
 // const scene = shadowScene(canvas, engine);
 // const scene = sunScene(canvas, engine);
+const scene = loaderScene(canvas, engine);
+// const scene = emptyScene(canvas, engine);
 
 // Render every frame
 engine.runRenderLoop(() => {

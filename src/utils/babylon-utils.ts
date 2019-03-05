@@ -1,24 +1,36 @@
 import { Vector3, Color3 } from "@babylonjs/core/Maths/math";
-import { Camera, ArcRotateCamera } from "@babylonjs/core";
+import { ArcRotateCamera } from "@babylonjs/core";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/";
 import { LensFlareSystem, LensFlare } from "@babylonjs/core/LensFlares";
-import { AssetsManager } from "@babylonjs/core/"
+import { AssetsManager, CubeTexture } from "@babylonjs/core/"
 
-export const loadMesh = (scene, path, fileName) => {
+
+// =================================================
+// Assets
+
+export const loadMesh = (scene, path, fileName, cb) => {
   var assetsManager = new AssetsManager(scene);
   var meshTask = assetsManager.addMeshTask(`${fileName} task`, '', path, fileName);
 
   meshTask.onSuccess = function (task) {
-    task.loadedMeshes[0].position = Vector3.Zero();
+    cb(task, null);
   }
+
   meshTask.onError = function (task, message, exception) {
-      console.log(message, exception);
+    cb(task, { message, exception });
   }
+
+  assetsManager.load();
 }
 
-export const setArcCamera = (canvas, scene, ortographic = null, options = {
+export const findMesh = (scene, name) => {
+  return scene.meshes.find(mesh => mesh.name === name);
+}
+
+export const setArcCamera = (
+  canvas, scene, ortographic = null, options = {
   alpha: 0, // radians(0), // 0.785398 * 2,
   beta: 0, // radians(0), // 0.785398, 
   radius: 10,
@@ -34,7 +46,8 @@ export const setArcCamera = (canvas, scene, ortographic = null, options = {
   return camera;
 }
 
-export const setAmbientLight = (scene, options = {
+export const setAmbientLight = (
+  scene, options = {
   intensity: 0.5,
   pos: new Vector3(0, 1, 0),
 }) => {
@@ -45,9 +58,10 @@ export const setAmbientLight = (scene, options = {
   return light;
 }
 
-export const setDirectionalLight = (scene, options = {
+export const setDirectionalLight = (
+  scene, options = {
   intensity: 1,
-  pos: new Vector3(-5, 5, -5), // new Vector3(-40, 30, -40),
+  pos: new Vector3(0, 50, -0), // new Vector3(-40, 30, -40),
   dir: new Vector3(1, -1, 1), // new Vector3(1, -0.75, 1),
 }) => {
   const { intensity, pos, dir } = options;
@@ -56,6 +70,8 @@ export const setDirectionalLight = (scene, options = {
   shadowLight.intensity = intensity;
   shadowLight.shadowMinZ = 1;
   shadowLight.shadowMaxZ = 2500;
+
+  // shadowLight.setDirectionToTarget(Vector3.Zero());
 
   // const radiansFromCameraForShadows = -3 * (Math.PI / 4);
   // scene.registerBeforeRender(() => {
@@ -70,19 +86,44 @@ export const setDirectionalLight = (scene, options = {
 
 export const setShadowGenerator = (light, meshArr) => {
   const shadowGenerator: ShadowGenerator = new ShadowGenerator(1024 /* size of shadow map */, light);
+  
+  // bias
   shadowGenerator.bias = 0.001;
-  shadowGenerator.depthScale = 2500;
+  shadowGenerator.depthScale = 100; // 2500;
 
+  // exponential
   shadowGenerator.useBlurExponentialShadowMap = true;
+  
+  // blurKernel
+  shadowGenerator.useKernelBlur = true;
+  shadowGenerator.blurKernel = 8; // 64;
+  
   // for self-shadowing (ie: blocks)
   shadowGenerator.forceBackFacesOnly = true;
-  shadowGenerator.depthScale = 100;
 
+  // shadowGenerator.getShadowMap().refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
+
+  // add given mesh list to the shadow map
   meshArr.map((item) => {
     shadowGenerator.getShadowMap().renderList.push(item);
   })
   
   return shadowGenerator;
+}
+
+export const setSkybox = (scene, fileName = null) => {
+  // skybox
+  const path = '/assets/textures/skybox/';
+  if (!fileName) {
+    // fileName = 'environment.env';
+    // fileName = 'forest.env';
+    // fileName = 'Runyon_Canyon_A_2k_cube_specular.env';
+    // fileName = 'SpecularHDR.env';
+    fileName = 'Studio_Softbox_2Umbrellas_cube_specular.env';
+  }
+  
+  const envTexture = new CubeTexture(`${path}${fileName}`, scene); 
+  scene.createDefaultSkybox(envTexture, true, 1000);
 }
 
 
