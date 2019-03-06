@@ -8,7 +8,7 @@ import { bounceScene } from './scenes/bounceScene'
 import { testScene } from './scenes/testScene'
 import { shadowScene } from './scenes/shadowScene'
 import { sunScene } from './scenes/sunScene'
-import { loaderScene } from './scenes/loaderScene'
+import LoaderScene from './scenes/LoaderScene'
 import { emptyScene } from './scenes/emptyScene'
 
 // Get the canvas element from the DOM and Associate a Babylon Engine to it.
@@ -23,7 +23,7 @@ const engine = new Engine(canvas, true, {}, false);
 // const scene = testScene(canvas, engine);
 // const scene = shadowScene(canvas, engine);
 // const scene = sunScene(canvas, engine);
-const scene = loaderScene(canvas, engine);
+const scene = new LoaderScene(canvas, engine, {});
 // const scene = emptyScene(canvas, engine);
 
 // Render every frame

@@ -1,14 +1,21 @@
-import { Vector3, Color3 } from "@babylonjs/core/Maths/math";
-import { ArcRotateCamera } from "@babylonjs/core";
+import { Vector3, Color3, Plane } from "@babylonjs/core/Maths/math";
+import { ArcRotateCamera, Texture, MirrorTexture, StandardMaterial, Mesh } from "@babylonjs/core";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/";
 import { LensFlareSystem, LensFlare } from "@babylonjs/core/LensFlares";
 import { AssetsManager, CubeTexture } from "@babylonjs/core/"
-
+import { color3, color4, randomColor3, randomColor4, Colors } from "../utils/colors";
+import { getRandomKeyValue, getRandomInt } from "../utils/math";
+// import { radians, degrees } from './math.ts';
 
 // =================================================
 // Assets
+
+export const getFileName = (url) => {
+  const arr = url.split('/')
+  return arr[arr.length - 1].split('.')[0];
+}
 
 export const loadMesh = (scene, path, fileName, cb) => {
   var assetsManager = new AssetsManager(scene);
@@ -29,6 +36,9 @@ export const findMesh = (scene, name) => {
   return scene.meshes.find(mesh => mesh.name === name);
 }
 
+// =================================================
+// Cameras
+
 export const setArcCamera = (
   canvas, scene, ortographic = null, options = {
   alpha: 0, // radians(0), // 0.785398 * 2,
@@ -46,6 +56,45 @@ export const setArcCamera = (
   return camera;
 }
 
+// =================================================
+// Environment
+
+export const setEnvironment = (
+  scene,
+  options = {
+    clearColor: color3(Colors.black),
+    ambientColor: color3(Colors.darkgrey),
+  }
+) => {
+
+  const { clearColor, ambientColor } = options;
+
+  // scene
+  scene.clearColor = clearColor; // randomColor4(),
+  scene.ambientColor = ambientColor; // randomColor3(),
+
+  // lights
+  const alight = setAmbientLight(scene);
+  const dlight = setDirectionalLight(scene,
+    { intensity: 5, pos: new Vector3(-50, 50, -0), dir: new Vector3(-40, 30, -40) }
+  );
+
+  // shadows
+  const shadowLight = setDirectionalLight(scene, 
+    { intensity: 0.5, pos: new Vector3(0, 50, -0), dir: new Vector3(0, -1, 0) }
+  );
+
+  const shadowGenerator = setShadowGenerator(shadowLight);
+
+  // skybox
+  const skybox = setSkybox(scene);
+
+  // lens flare
+  const lensFlare = setLensFlareSystem(scene, dlight)
+
+  return { alight, dlight, shadowLight, shadowGenerator, skybox, lensFlare };
+}
+
 export const setAmbientLight = (
   scene, options = {
   intensity: 0.5,
@@ -61,30 +110,24 @@ export const setAmbientLight = (
 export const setDirectionalLight = (
   scene, options = {
   intensity: 1,
-  pos: new Vector3(0, 50, -0), // new Vector3(-40, 30, -40),
-  dir: new Vector3(1, -1, 1), // new Vector3(1, -0.75, 1),
+  pos: new Vector3(0, 50, -0),
+  dir: new Vector3(1, -1, 1),
 }) => {
+  
   const { intensity, pos, dir } = options;
-  const shadowLight = new DirectionalLight('dir01', dir, scene);
-  shadowLight.position = pos;
-  shadowLight.intensity = intensity;
-  shadowLight.shadowMinZ = 1;
-  shadowLight.shadowMaxZ = 2500;
+  const dlight = new DirectionalLight('dir01', dir, scene);
+  dlight.position = pos;
+  dlight.intensity = intensity;
+  dlight.shadowMinZ = 1;
+  dlight.shadowMaxZ = 2500;
 
-  // shadowLight.setDirectionToTarget(Vector3.Zero());
+  // dlight.setDirectionToTarget(Vector3.Zero());
 
-  // const radiansFromCameraForShadows = -3 * (Math.PI / 4);
-  // scene.registerBeforeRender(() => {
-  //   shadowLight.position.x = Math.cos(camera.alpha + radiansFromCameraForShadows) * 40;
-  //   shadowLight.position.z = Math.sin(camera.alpha + radiansFromCameraForShadows) * 40;
-  //   shadowLight.setDirectionToTarget(Vector3.Zero());
-  // });
-
-  return shadowLight;
+  return dlight;
 }
   
 
-export const setShadowGenerator = (light, meshArr) => {
+export const setShadowGenerator = (light, meshArr = []) => {
   const shadowGenerator: ShadowGenerator = new ShadowGenerator(1024 /* size of shadow map */, light);
   
   // bias
@@ -113,17 +156,19 @@ export const setShadowGenerator = (light, meshArr) => {
 
 export const setSkybox = (scene, fileName = null) => {
   // skybox
-  const path = '/assets/textures/skybox/';
+  const path = '/assets/skyboxes/';
   if (!fileName) {
     // fileName = 'environment.env';
     // fileName = 'forest.env';
-    // fileName = 'Runyon_Canyon_A_2k_cube_specular.env';
+    fileName = 'Runyon_Canyon_A_2k_cube_specular.env';
     // fileName = 'SpecularHDR.env';
-    fileName = 'Studio_Softbox_2Umbrellas_cube_specular.env';
+    // fileName = 'Studio_Softbox_2Umbrellas_cube_specular.env';
   }
   
   const envTexture = new CubeTexture(`${path}${fileName}`, scene); 
-  scene.createDefaultSkybox(envTexture, true, 1000);
+  const skybox = scene.createDefaultSkybox(envTexture, true, 1000);
+  console.log('skybox', skybox)
+  return skybox;
 }
 
 
@@ -141,6 +186,65 @@ export const setLensFlareSystem = (scene, light) => {
   const flare5 = new LensFlare(0.3, 0.8, new Color3(1, 1, 1), "Assets/images/particles/lens4.png", lensFlareSystem);
 
   return lensFlareSystem
+}
+
+export const setMirror = (
+  scene,
+  options = {
+    name: 'mirror',
+    size: 50,
+    mirrorSize: 512,
+    position: new Vector3(0, 0, 0),
+    direction: new Vector3(0, -1, 0),
+    distance: 0,
+    level: 0.4,
+    color: null,
+    texture: null,
+    meshes: [],
+  }
+) => {
+  const  { size, mirrorSize, position, direction, distance, level, color, texture, meshes } = options;
+
+  // create mirror texture
+  var mirrorTexture = new MirrorTexture(name, mirrorSize, scene, true); //Create a mirror texture
+  mirrorTexture.mirrorPlane = new Plane(direction.x, direction.y, direction.z, distance);
+  mirrorTexture.renderList = meshes; // result.loadedMeshes; // [droid.mesh, speedy, shark, star];
+  mirrorTexture.level = level; // 0.4;//Select the level (0.0 > 1.0) of the reflection
+  
+  // mirror material
+  var mirrorMaterial = new StandardMaterial(`${name}-material`, scene);       
+  if (color) { mirrorMaterial.diffuseColor = color; }
+  if (texture) { mirrorMaterial.diffuseTexture = texture; }
+  mirrorMaterial.reflectionTexture = mirrorTexture;
+
+  // mirror plane
+  var plane = Mesh.CreatePlane("plane", size, scene);
+  plane.position = position;
+  plane.rotation = new Vector3(Math.PI / 2, 0, 0);
+  plane.material = mirrorMaterial;
+
+  return { plane, material: mirrorMaterial, texture: mirrorTexture };
+}
+
+export const setTexture = (scene, fileName = null, size = {x : 0, y: 0}) => {
+  // if no fileName was given get a random one
+  if (!fileName) {
+    const types = {scifi: 5, stone: 6, white: 7, wood: 4 };
+    const item = getRandomKeyValue(types);
+    fileName = `${item.key}-${getRandomInt(1, item.value)}`
+  }
+
+  console.log(fileName);
+  
+  // create texture at random repeat size
+  const texture = new Texture(`/assets/textures/${fileName}.jpg`, scene);
+  const sc = getRandomInt(1, 9);
+  texture.uScale = size.x ? size.x : sc;
+  texture.vScale = size.y ? size.y : sc;
+  texture.uOffset = 0;
+  texture.vOffset = 0;
+
+  return texture;
 }
 
 // ===============================================================
@@ -177,13 +281,4 @@ export const setLensFlareSystem = (scene, light) => {
 // ground.receiveShadows = true;
 // ===============================================================
 
-// Converts from degrees to radians.
-export const radians = (degrees) => {
-  return degrees * Math.PI / 180;
-};
- 
-// Converts from radians to degrees.
-export const degrees = (radians) => {
-  return radians * 180 / Math.PI;
-};
 
