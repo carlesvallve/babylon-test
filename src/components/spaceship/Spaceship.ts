@@ -21,6 +21,7 @@ export default class Spaceship extends TransformNode {
     this.mesh.position = Vector3.Zero();
     this.material = this.mesh.material;
     this.material.diffuseColor = randomColor3(); 
+    this.material.specularColor = randomColor3(); // new Color3(0.6, 0.6, 0.6);
   }
 
   initMaterial() {

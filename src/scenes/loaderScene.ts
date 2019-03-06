@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { StandardMaterial, Color3 } from '@babylonjs/core';
+import  { Texture, StandardMaterial, Color3 } from '@babylonjs/core';
 import "@babylonjs/core/Meshes/meshBuilder";
 
 // spaceships
@@ -17,6 +17,7 @@ import {
   setTexture,
   getFileName,
 } from "../utils/babylon-utils";
+import { getRandomItemsFromArr } from "../utils/math";
 
 
 
@@ -106,9 +107,21 @@ export default class LoaderScene extends Scene {
     ground.position = new Vector3(0, -0.5, 0);
     ground.scaling = new Vector3(size, 1, size);
     ground.material = new StandardMaterial('material', this);
+    (<StandardMaterial>ground.material).specularColor = new Color3(0.6, 0.6, 0.6);
     (<StandardMaterial>ground.material).diffuseTexture = texture;
     if (bumpTexture) { (<StandardMaterial>ground.material).bumpTexture = bumpTexture; }
     ground.receiveShadows = true;
+
+    // const hmaps = ['brittania', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', 'tamriel', 'uk'];
+    // const fileName = getRandomItemsFromArr(hmaps, 1)[0];
+    // console.log(fileName)
+    // var map = Mesh.CreateGroundFromHeightMap("map", `assets/heightmaps/${fileName}.jpg`, size, size, size / 2, 0, 22, this, false,);
+    // var mapMaterial = new StandardMaterial("mapMaterial", this);
+    // // mapMaterial.diffuseTexture = new Texture("assets/textures/ground.jpg", this);
+    // mapMaterial.diffuseTexture = texture; // setTexture(this);
+    // mapMaterial.specularColor = new Color3( 1, 1, 1);
+    // map.position.y = -2.05;
+    // map.material = mapMaterial;
 
     return { mesh: ground, material: ground.material, texture, mirror };
   }
