@@ -1,3 +1,5 @@
+import { Vector2, Vector3 } from "@babylonjs/core";
+
 // ========================================
 // Angles
 
@@ -8,6 +10,21 @@ export const radians = (degrees) => { // converts from degrees to radians
 export const degrees = (radians) => { // converts from radians to degrees
   return radians * 180 / Math.PI;
 };
+
+export const getRandomVector3 = (min:Vector3, max:Vector3): Vector3 => {
+  // const p = new Vector3(
+  //   -min.x + Math.random() * max.x,
+  //   -min.y + Math.random() * max.y,
+  //   -min.z + Math.random() * max.z,
+  // )
+  const p = new Vector3(
+    getRandomInt(min.x, max.x),
+    getRandomInt(min.y, max.y),
+    getRandomInt(min.z, max.z),
+  )
+
+  return p;
+}
 
 
 // ========================================

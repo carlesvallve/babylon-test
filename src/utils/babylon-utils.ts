@@ -1,5 +1,6 @@
 import { Vector3, Color3, Plane } from "@babylonjs/core/Maths/math";
 import { ArcRotateCamera, Texture, MirrorTexture, StandardMaterial, Mesh } from "@babylonjs/core";
+import { CubicEase, EasingFunction, Animation } from "@babylonjs/core";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { ShadowGenerator } from "@babylonjs/core/Lights/Shadows/";
@@ -40,21 +41,34 @@ export const findMesh = (scene, name) => {
 // Cameras
 
 export const setArcCamera = (
-  canvas, scene, ortographic = null, options = {
-  alpha: 0, // radians(0), // 0.785398 * 2,
-  beta: 0, // radians(0), // 0.785398, 
-  radius: 10,
+  canvas, scene, options = {
+  alpha: Math.PI - Math.PI / 4, // 0
+  beta: Math.PI / 3, // 0
+  radius: 150, // 10
   target: new Vector3(0, 0, 0),
   pos: new Vector3(10, 10, -10),
 }) => {
   const  { alpha, beta, radius, target, pos } = options;
 
-  const camera = new ArcRotateCamera("Camera", 0, 0, radius, target, scene, )
+  const camera = new ArcRotateCamera("Camera", alpha, beta, radius, target, scene, )
   camera.setPosition(pos);
   camera.attachControl(canvas, true);
 
   return camera;
 }
+
+export const animateCameraTo = (
+  camera: ArcRotateCamera,
+  target: Vector3, position: Vector3,
+  framePerSecond: number, totalFrame: number
+): void => {
+  // animates camera to given camera position looking at given target position
+  var ease = new CubicEase ();
+  ease.setEasingMode(EasingFunction.EASINGMODE_EASEINOUT);
+  Animation.CreateAndStartAnimation('at4', camera, 'position', framePerSecond, totalFrame, camera.position, position, 0, ease);
+  Animation.CreateAndStartAnimation('at5', camera, 'target', framePerSecond, totalFrame, camera.target, target, 0, ease);
+};
+
 
 // =================================================
 // Environment
@@ -167,7 +181,6 @@ export const setSkybox = (scene, fileName = null) => {
   
   const envTexture = new CubeTexture(`${path}${fileName}`, scene); 
   const skybox = scene.createDefaultSkybox(envTexture, true, 1000);
-  console.log('skybox', skybox)
   return skybox;
 }
 
@@ -222,6 +235,7 @@ export const setMirror = (
   plane.position = position;
   plane.rotation = new Vector3(Math.PI / 2, 0, 0);
   plane.material = mirrorMaterial;
+  plane.isPickable = false;
 
   return { plane, material: mirrorMaterial, texture: mirrorTexture };
 }

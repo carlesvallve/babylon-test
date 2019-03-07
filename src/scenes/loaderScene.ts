@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
-import { Vector3 } from "@babylonjs/core/Maths/math";
+import { Vector3, Size } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { Texture, StandardMaterial, Color3, ArcRotateCamera, Tools } from '@babylonjs/core';
+import  { Texture, StandardMaterial, Color3, ArcRotateCamera, Tools, PointerEventTypes } from '@babylonjs/core';
 import "@babylonjs/core/Meshes/meshBuilder";
 
 // spaceships
@@ -16,8 +16,9 @@ import {
   findMesh,
   setTexture,
   getFileName,
+  animateCameraTo,
 } from "../utils/babylon-utils";
-import { getRandomItemsFromArr } from "../utils/math";
+import { getRandomItemsFromArr, getRandomVector3 } from "../utils/math";
 
 
 
@@ -26,6 +27,7 @@ export default class LoaderScene extends Scene {
   camera;
   ground;
   spaceships;
+  selected;
 
   // initContent;
 
@@ -74,6 +76,7 @@ export default class LoaderScene extends Scene {
       }
 
       this.initContent(result);
+      this.initPicker()
     });
   }
 
@@ -98,7 +101,7 @@ export default class LoaderScene extends Scene {
     const texture = setTexture(this, 'scifi-1');
     console.log(texture);
 
-    const bumpTexture = null; // setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
+    const bumpTexture = setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
     // mirror
     // const mirror = null;
@@ -124,6 +127,7 @@ export default class LoaderScene extends Scene {
     (<StandardMaterial>ground.material).diffuseTexture = texture;
     if (bumpTexture) { (<StandardMaterial>ground.material).bumpTexture = bumpTexture; }
     ground.receiveShadows = true;
+    ground.isPickable = false;
 
     // const hmaps = ['brittania', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', 'tamriel', 'uk'];
     // const fileName = getRandomItemsFromArr(hmaps, 1)[0];
@@ -158,6 +162,29 @@ export default class LoaderScene extends Scene {
       shark: initSpaceship(this, 'SharkFighter', new Vector3(d, y, 0)),
       star: initSpaceship(this, 'StarFighter', new Vector3(d * 3, y, 0)),
     }
+  }
+
+  selectSpaceship(selected) {
+    const d = 32;
+    const tpos = selected.getAbsolutePosition();
+    animateCameraTo(
+      this.camera,
+      tpos,
+      getRandomVector3(new Vector3(tpos.x-d, tpos.y+1, tpos.z-d), new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)), 
+      60, 60 * 2
+    );
+  }
+
+  initPicker() {
+    // let selected = null;
+
+    this.onPointerObservable.add((e) => {
+      if (e.pickInfo.hit && e.pickInfo.pickedMesh && e.event.button === 0) {
+        console.log(e.pickInfo)
+        this.selectSpaceship(e.pickInfo.pickedMesh);
+      }
+    }, PointerEventTypes.POINTERUP);
+    
   }
 
   
