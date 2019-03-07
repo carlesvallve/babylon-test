@@ -178,12 +178,12 @@ export const setLensFlareSystem = (scene, light) => {
   const lensFlareSystem = new LensFlareSystem("lensFlareSystem", light, scene);
   
   // Then, you can add flares to your system with the following code:
-  const flare0 = new LensFlare(0.2, 0, new Color3(1, 1, 1), "Assets/images/particles/lens5.png", lensFlareSystem);
-  const flare1 = new LensFlare(0.5, 0.2, new Color3(0.5, 0.5, 1), "Assets/images/particles/lens4.png", lensFlareSystem);
-  const flare2 = new LensFlare(0.2, 1.0, new Color3(1, 1, 1), "Assets/images/particles/lens4.png", lensFlareSystem);
-  const flare3 = new LensFlare(0.4, 0.4, new Color3(1, 0.5, 1), "Assets/images/particles/Flare.png", lensFlareSystem);
-  const flare4 = new LensFlare(0.1, 0.6, new Color3(1, 1, 1), "Assets/images/particles/lens5.png", lensFlareSystem);
-  const flare5 = new LensFlare(0.3, 0.8, new Color3(1, 1, 1), "Assets/images/particles/lens4.png", lensFlareSystem);
+  const flare0 = new LensFlare(0.2, 0, new Color3(1, 1, 1), "assets/particles/lens5.png", lensFlareSystem);
+  const flare1 = new LensFlare(0.5, 0.2, new Color3(0.5, 0.5, 1), "assets/particles/lens4.png", lensFlareSystem);
+  const flare2 = new LensFlare(0.2, 1.0, new Color3(1, 1, 1), "assets/particles/lens4.png", lensFlareSystem);
+  const flare3 = new LensFlare(0.4, 0.4, new Color3(1, 0.5, 1), "assets/particles/Flare.png", lensFlareSystem);
+  const flare4 = new LensFlare(0.1, 0.6, new Color3(1, 1, 1), "assets/particles/lens5.png", lensFlareSystem);
+  const flare5 = new LensFlare(0.3, 0.8, new Color3(1, 1, 1), "assets/particles/lens4.png", lensFlareSystem);
 
   return lensFlareSystem
 }

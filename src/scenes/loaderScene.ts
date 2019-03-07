@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { Texture, StandardMaterial, Color3 } from '@babylonjs/core';
+import  { Texture, StandardMaterial, Color3, ArcRotateCamera, Tools } from '@babylonjs/core';
 import "@babylonjs/core/Meshes/meshBuilder";
 
 // spaceships
@@ -45,7 +45,20 @@ export default class LoaderScene extends Scene {
   }
 
   setCamera(canvas) {
-    return setArcCamera(canvas, this);
+    const camera = setArcCamera(canvas, this);
+    // camera.lowerAlphaLimit = 180;
+    // camera.lowerBetaLimit = 180;
+
+    // var cam_startZoom = 3, cam_minZoom = 1.5, cam_maxZoom = 25;
+    // var cam_startRoll = -148, cam_lowerRollLimit = null, cam_upperRollLimit = null;
+    // var cam_startPitch = 76, cam_lowerPitchLimit = 0.1, cam_upperPitchLimit = 180;			
+    // var orbitalCamera = new ArcRotateCamera("CameraOrbit", (Math.PI * cam_startRoll / 180), (Math.PI * cam_startPitch / 180), cam_startZoom, new Vector3(0,0.3,0), this);
+    // orbitalCamera.lowerRadiusLimit = cam_minZoom; orbitalCamera.upperRadiusLimit = cam_maxZoom; orbitalCamera.wheelPrecision = 150;
+    // orbitalCamera.lowerBetaLimit = (Math.PI * cam_lowerPitchLimit / 180); orbitalCamera.upperBetaLimit = (Math.PI * cam_upperPitchLimit / 180);
+    // orbitalCamera.lowerAlphaLimit = (Math.PI * cam_lowerRollLimit / 180); orbitalCamera.upperAlphaLimit = (Math.PI * cam_upperRollLimit / 180);
+    // orbitalCamera.minZ = 0.6; orbitalCamera.maxZ = 10; orbitalCamera.fov = Tools.ToRadians(50);				
+
+    return camera;
   }
 
   loadContent() {
@@ -82,7 +95,7 @@ export default class LoaderScene extends Scene {
   initGround() {
     const size = 128;
     // random texture for both ground and mirror
-    const texture = setTexture(this);
+    const texture = setTexture(this, 'scifi-1');
     console.log(texture);
 
     const bumpTexture = null; // setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
@@ -96,7 +109,7 @@ export default class LoaderScene extends Scene {
       position: new Vector3(0, 0.001, 0),
       direction: new Vector3(0, -1, 0),
       distance: 0,
-      level: 0.4,
+      level: 0.3,
       color: new Color3(0.8, 0.8, 0.8),
       texture: texture,
       meshes: [this.env.skybox], // this.meshes
@@ -146,5 +159,7 @@ export default class LoaderScene extends Scene {
       star: initSpaceship(this, 'StarFighter', new Vector3(d * 3, y, 0)),
     }
   }
+
+  
 
 }

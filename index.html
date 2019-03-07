@@ -5,6 +5,7 @@
     <title>Babylon Test</title>
 
     <!-- <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script> -->
+    
 
     <style>
         html,
@@ -27,8 +28,24 @@
 
 <body>
     <canvas id="renderCanvas" touch-action="none"></canvas>
-    <!-- <script src="main.js"></script> -->
     <script src="./bundle.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
+    <script type="text/javascript">
+        var stats = new Stats();
+        stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.body.appendChild( stats.domElement );
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = 0;
+        function animate() {
+            stats.begin();
+            // monitored code goes here
+            stats.end();
+            requestAnimationFrame( animate );
+        }
+
+        requestAnimationFrame( animate );  
+    </script>
 </body>
 
 </html>
