@@ -85,21 +85,21 @@ export default class LoaderScene extends Scene {
     this.spaceships = this.initSpaceships();
     
     // add loaded meshes to shadowmap and mirror
-    result.loadedMeshes.map(mesh => {
-      if (this.env.shadowGenerator) {
-        this.env.shadowGenerator.getShadowMap().renderList.push(mesh);
-      }
-      if (this.ground.mirror) {
-        this.ground.mirror.texture.renderList.push(mesh);
-      }
-    });
+    // result.loadedMeshes.map(mesh => {
+    //   if (this.env.shadowGenerator) {
+    //     this.env.shadowGenerator.getShadowMap().renderList.push(mesh);
+    //   }
+    //   if (this.ground.mirror) {
+    //     this.ground.mirror.texture.renderList.push(mesh);
+    //     this.ground.mirror.texture.renderList.push(mesh);
+    //   }
+    // });
   }
 
   initGround() {
     const size = 128;
     // random texture for both ground and mirror
-    const texture = setTexture(this, 'scifi-1');
-    console.log(texture);
+    const texture = setTexture(this, 'stone-1');
 
     const bumpTexture = setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
@@ -113,7 +113,7 @@ export default class LoaderScene extends Scene {
       direction: new Vector3(0, -1, 0),
       distance: 0,
       level: 0.3,
-      color: new Color3(0.8, 0.8, 0.8),
+      color: new Color3(0.5, 0.5, 0.5),
       texture: texture,
       meshes: [this.env.skybox], // this.meshes
     });
@@ -123,6 +123,7 @@ export default class LoaderScene extends Scene {
     ground.position = new Vector3(0, -0.5, 0);
     ground.scaling = new Vector3(size, 1, size);
     ground.material = new StandardMaterial('material', this);
+    // (<StandardMaterial>ground.material).diffuseColor = new Color3(0.3, 0.3, 0.3);
     (<StandardMaterial>ground.material).specularColor = new Color3(0.6, 0.6, 0.6);
     (<StandardMaterial>ground.material).diffuseTexture = texture;
     if (bumpTexture) { (<StandardMaterial>ground.material).bumpTexture = bumpTexture; }
@@ -167,20 +168,22 @@ export default class LoaderScene extends Scene {
   selectSpaceship(selected) {
     const d = 32;
     const tpos = selected.getAbsolutePosition();
+
     animateCameraTo(
       this.camera,
       tpos,
-      getRandomVector3(new Vector3(tpos.x-d, tpos.y+1, tpos.z-d), new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)), 
+      getRandomVector3(
+        new Vector3(tpos.x-d, tpos.y+1, tpos.z-d),
+        new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)
+      ), 
       60, 60 * 2
     );
   }
 
   initPicker() {
-    // let selected = null;
-
     this.onPointerObservable.add((e) => {
       if (e.pickInfo.hit && e.pickInfo.pickedMesh && e.event.button === 0) {
-        console.log(e.pickInfo)
+        // console.log(e.pickInfo)
         this.selectSpaceship(e.pickInfo.pickedMesh);
       }
     }, PointerEventTypes.POINTERUP);
