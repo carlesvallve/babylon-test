@@ -112,7 +112,7 @@ export default class LoaderScene extends Scene {
       position: new Vector3(0, 0.001, 0),
       direction: new Vector3(0, -1, 0),
       distance: 0,
-      level: 0.3,
+      level: 0.5,
       color: new Color3(0.5, 0.5, 0.5),
       texture: texture,
       meshes: [this.env.skybox], // this.meshes

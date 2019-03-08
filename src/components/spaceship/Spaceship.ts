@@ -26,8 +26,7 @@ export default class Spaceship extends TransformNode {
     // this.material.emissiveColor = randomColor3()
 
     // add mesh to shadows and mirrors
-    this.scene.env.shadowGenerator.getShadowMap().renderList.push(mesh);
-    this.scene.ground.mirror.texture.renderList.push(mesh);
+    this.addToEnvironmentEffects(mesh);
   }
 
   initParticles() {
@@ -40,9 +39,13 @@ export default class Spaceship extends TransformNode {
       this.thrusters.push({ emitter, particleSystem });
 
       // add particles to shadows and mirrors
-      if (this.scene.env.shadowGenerator) { this.scene.env.shadowGenerator.getShadowMap().renderList.push(emitter); }
-      if (this.scene.ground.mirror) { this.scene.ground.mirror.texture.renderList.push(emitter); }
+      this.addToEnvironmentEffects(emitter);
     })
+  }
+
+  addToEnvironmentEffects(mesh) {
+    if (this.scene.env.shadowGenerator) { this.scene.env.shadowGenerator.getShadowMap().renderList.push(mesh); }
+    if (this.scene.ground.mirror) { this.scene.ground.mirror.texture.renderList.push(mesh); }
   }
 
   init() {
