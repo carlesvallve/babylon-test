@@ -1,4 +1,4 @@
-import { TransformNode, Vector3, Color3, Mesh } from "@babylonjs/core";
+import { TransformNode, Vector3, Color3, Mesh, PowerEase } from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
 import { spaceshipParticles } from "../../utils/particles";
 import { addToEnvironmentEffects, animateCameraTo } from "../../utils/babylon-utils";
@@ -13,6 +13,7 @@ export default class Spaceship extends TransformNode {
   vel = { x: 0, y: 0, rot: 0 };
   acc = { x: 0, y: 0, rot: 0 };
   rot = 0;
+  power;
 
 
   constructor(name, scene, isPure, props) {
@@ -27,6 +28,7 @@ export default class Spaceship extends TransformNode {
     this.vel = { x: 0, y: 0, rot: 0 };
     this.acc = { x: 0, y: 0, rot: 0 };
     this.rot = 0;
+    this.power = 0;
 
     this.scene.registerBeforeRender(() => {
       this.move( 0.1);
@@ -46,7 +48,7 @@ export default class Spaceship extends TransformNode {
     const c = randomColor3();
     this.material.diffuseColor = c; //randomColor3(); 
     this.material.specularColor = new Color3(0.8, 0.8, 0.8); //randomColor3();
-    this.material.emissiveColor = c; // randomColor3() 
+    // this.material.emissiveColor = c; // randomColor3() 
   }
 
   initParticles() {
@@ -73,20 +75,43 @@ export default class Spaceship extends TransformNode {
     }
 
     // thrust
+    // this.acc.x = 0;
+    // this.acc.y = 0;
+    // var rad = ((this.rot-90) * Math.PI)/180;
+    // this.acc.x = 0.5 * Math.cos(rad);
+    // this.acc.y = 0.5 * Math.sin(rad);
+
+    // let power = 0;
     if (keyStatus === 'up') {
-      var rad = ((this.rot-90) * Math.PI)/180;
-      this.acc.x = 0.5 * Math.cos(rad);
-      this.acc.y = 0.5 * Math.sin(rad);
+      // var rad = ((this.rot-90) * Math.PI)/180;
+      // this.acc.x = 0.5 * Math.cos(rad);
+      // this.acc.y = 0.5 * Math.sin(rad);
+      this.power += 0.05;
+      if (this.power >= 0.5) { this.power = 0.5; }
+
     } else if (keyStatus === 'down') {
       const d = 0.9;
       this.vel.x *= d;
       this.vel.y *= d;
       this.acc.x = 0;
       this.acc.y = 0;
+      this.power -= 0.1;
+      if (this.power <= 0) { this.power = 0; }
+
     } else {
-      this.acc.x = 0;
-      this.acc.y = 0;
+      // this.acc.x = 0;
+      // this.acc.y = 0;
     }
+
+    // this.acc.x = 0;
+    // this.acc.y = 0;
+    var rad = ((this.rot-90) * Math.PI)/180;
+    this.acc.x = this.power * Math.cos(rad);
+    this.acc.y = this.power * Math.sin(rad);
+
+    // const d = 0.95;
+    // this.vel.x *= d;
+    // this.vel.y *= d;
   }
 
   move(delta) {
