@@ -50,7 +50,11 @@ export const setArcCamera = (
 }) => {
   const  { alpha, beta, radius, target, pos } = options;
 
-  const camera = new ArcRotateCamera("Camera", alpha, beta, radius, target, scene, )
+  const camera = new ArcRotateCamera("Camera", alpha, beta, radius, target, scene, );
+  camera.allowUpsideDown = false;
+  camera.lowerRadiusLimit = 10;
+  camera.upperRadiusLimit = 50;
+
   camera.setPosition(pos);
   camera.attachControl(canvas, true);
 
@@ -59,8 +63,10 @@ export const setArcCamera = (
 
 export const animateCameraTo = (
   camera: ArcRotateCamera,
-  target: Vector3, position: Vector3,
-  framePerSecond: number, totalFrame: number
+  target: Vector3,
+  position: Vector3,
+  framePerSecond: number,
+  totalFrame: number
 ): void => {
   // animates camera to given camera position looking at given target position
   var ease = new CubicEase ();
@@ -153,6 +159,7 @@ export const setFog = (scene, options = { mode: Scene.FOGMODE_NONE, density: 0.0
   // scene.fogStart = 20.0;
   // scene.fogEnd = 60.0;
 }
+
 export const setAmbientLight = (
   scene, options = {
   intensity: 0.5,

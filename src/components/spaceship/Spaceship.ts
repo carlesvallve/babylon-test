@@ -1,13 +1,19 @@
 import { TransformNode, Vector3, Color3, Mesh } from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
 import { spaceshipParticles } from "../../utils/particles";
-import { addToEnvironmentEffects } from "../../utils/babylon-utils";
+import { addToEnvironmentEffects, animateCameraTo } from "../../utils/babylon-utils";
+import { radians, getRandomVector3 } from "../../utils/math";
+import { CubicEase, EasingFunction, Animation } from "@babylonjs/core";
 
 export default class Spaceship extends TransformNode {
   scene;
   mesh;
   material;
   thrusters;
+  vel = { x: 0, y: 0, rot: 0 };
+  acc = { x: 0, y: 0, rot: 0 };
+  rot = 0;
+
 
   constructor(name, scene, isPure, props) {
     super(name, scene, isPure);
@@ -17,7 +23,17 @@ export default class Spaceship extends TransformNode {
     this.initMaterial();
     this.initParticles();
     addToEnvironmentEffects(this.scene, this);
+
+    this.vel = { x: 0, y: 0, rot: 0 };
+    this.acc = { x: 0, y: 0, rot: 0 };
+    this.rot = 0;
+
+    this.scene.registerBeforeRender(() => {
+      this.move( 0.1);
+    });
   }
+
+  // ==================================================
 
   initMesh(mesh) {
     this.mesh = mesh; // gameObject.getChildren()[0];
@@ -30,7 +46,7 @@ export default class Spaceship extends TransformNode {
     const c = randomColor3();
     this.material.diffuseColor = c; //randomColor3(); 
     this.material.specularColor = new Color3(0.8, 0.8, 0.8); //randomColor3();
-    // this.material.emissiveColor = c; // randomColor3() 
+    this.material.emissiveColor = c; // randomColor3() 
   }
 
   initParticles() {
@@ -38,17 +54,61 @@ export default class Spaceship extends TransformNode {
     spaceshipData[this.name].thrusters.map((thruster, index) => {
       const emitter = Mesh.CreateBox(`thruster${index}`, 0.1, this.scene);
       emitter.setParent(this);
-      emitter.isVisible = false;
+      emitter.isVisible = true;
       const particleSystem = spaceshipParticles(this.scene, emitter, thruster);
       this.thrusters.push({ emitter, particleSystem });
     })
   }
 
-  init() {
+  // ==================================================
 
+  control(keyStatus) {
+    // rotate
+    if (keyStatus === 'left') {
+      this.vel.rot = -35; // -6;
+    } else if (keyStatus === 'right') {
+      this.vel.rot = 35; // 6;
+    } else {
+      this.vel.rot = 0;
+    }
+
+    // thrust
+    if (keyStatus === 'up') {
+      var rad = ((this.rot-90) * Math.PI)/180;
+      this.acc.x = 0.5 * Math.cos(rad);
+      this.acc.y = 0.5 * Math.sin(rad);
+    } else if (keyStatus === 'down') {
+      const d = 0.9;
+      this.vel.x *= d;
+      this.vel.y *= d;
+      this.acc.x = 0;
+      this.acc.y = 0;
+    } else {
+      this.acc.x = 0;
+      this.acc.y = 0;
+    }
   }
+
+  move(delta) {
+    // vel
+    this.vel.x += this.acc.x * delta;
+    this.vel.y += this.acc.y * delta;
+    this.position.x += this.vel.x * delta;
+    this.position.z -= this.vel.y * delta;
+
+    // rot
+    this.rot += this.vel.rot * delta;
+    if (this.rot > 360) {
+      this.rot -= 360;
+    } else if (this.rot < 0) {
+      this.rot += 360;
+    }
+    this.rotation.y = radians(this.rot);
+  }
+
 }
 
+// ==================================================
 
 export const spaceshipData = {
   DroidFighter: {

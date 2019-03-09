@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
-import { Vector3, Size } from "@babylonjs/core/Maths/math";
+import { Vector3, Size, Axis, Space } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { Texture, StandardMaterial, Color3, ArcRotateCamera, Tools, PointerEventTypes } from '@babylonjs/core';
+import  { Texture, StandardMaterial, Color3, PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 import "@babylonjs/core/Meshes/meshBuilder";
 
 // spaceships
@@ -19,7 +19,8 @@ import {
   animateCameraTo,
   addToEnvironmentEffects,
 } from "../utils/babylon-utils";
-import { getRandomItemsFromArr, getRandomVector3, radians } from "../utils/math";
+import { getRandomVector3 } from "../utils/math";
+import { randomColor3 } from "../utils/colors";
 
 
 export default class LoaderScene extends Scene {
@@ -28,6 +29,7 @@ export default class LoaderScene extends Scene {
   ground;
   spaceships;
   selected;
+  vj;
 
   // initContent;
 
@@ -38,6 +40,81 @@ export default class LoaderScene extends Scene {
     this.ground = this.initGround();
 
     this.loadContent();
+
+    // this.setJoystick();
+    this.setKeyboard();
+  }
+
+  setKeyboard() {
+    var map = {}; //object for multiple key presses
+    this.actionManager = new ActionManager(this);
+  
+    this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, function (evt) {
+        map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+  
+    }));
+  
+    this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
+        map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+    }));
+
+    this.registerAfterRender(() => {
+      const ship = this.selected;
+      if (!ship) { return; }
+
+      let keyStatus = '';
+
+      if ((map["w"] || map["W"])) {
+        keyStatus = 'up';
+      };
+
+      if ((map["s"] || map["S"])) {
+        keyStatus = 'down';
+      };
+
+      if ((map["a"] || map["A"])) { 
+        keyStatus = 'left';
+      };
+
+      if ((map["d"] || map["D"])) {
+        keyStatus = 'right';
+      };
+
+      // update ship control
+      ship.control(keyStatus);
+
+      // update ship camera
+      const camera = this.camera;
+      const d = 1;
+      let p = new Vector3(
+        camera.position.x + (ship.position.x - camera.position.x) * d,
+        camera.position.y + (ship.position.y - camera.position.y) * d,
+        camera.position.z + (ship.position.z - camera.position.z) * d,
+      )
+      camera.setTarget(p);
+      
+    });
+  }
+
+  setJoystick() {
+    // this.joyL = new VirtualJoystick(true);
+    const vj = new VirtualJoystick(false);
+
+    /**
+    * Change the color of the virtual joystick
+    * @param newColor a string that must be a CSS color value (like "red") or the hexa value (like "#FF0000")
+    */
+   vj.setJoystickColor ('#ff0000');
+   /**
+    * Defines a callback to call when the joystick is touched
+    * @param action defines the callback
+    */
+   vj.setActionOnTouch(() => {
+     console.log('setActionOnTouch');
+   });
+
+   console.log(vj)
+
   }
 
 
@@ -173,25 +250,27 @@ export default class LoaderScene extends Scene {
   }
 
   selectSpaceship(selected) {
-    const d = 32;
-    const tpos = selected.getAbsolutePosition();
+    this.selected = selected;
 
-    animateCameraTo(
-      this.camera,
-      tpos,
-      getRandomVector3(
-        new Vector3(tpos.x-d, tpos.y+1, tpos.z-d),
-        new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)
-      ), 
-      60, 60 * 2
-    );
+    // const d = 32;
+    // const tpos = selected.getAbsolutePosition();
+
+    // animateCameraTo(
+    //   this.camera,
+    //   tpos,
+    //   getRandomVector3(
+    //     new Vector3(tpos.x-d, tpos.y+1, tpos.z-d),
+    //     new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)
+    //   ), 
+    //   60, 60 * 2
+    // );
   }
 
   initPicker() {
     this.onPointerObservable.add((e) => {
       if (e.pickInfo.hit && e.pickInfo.pickedMesh && e.event.button === 0) {
         // console.log(e.pickInfo)
-        this.selectSpaceship(e.pickInfo.pickedMesh);
+        this.selectSpaceship(e.pickInfo.pickedMesh.parent);
       }
     }, PointerEventTypes.POINTERUP);
     

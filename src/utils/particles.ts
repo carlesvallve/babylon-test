@@ -24,10 +24,10 @@ export const spaceshipParticles = (scene, emmiterObject, emitBox) => {
 
   // Life time of each particle (random between...
   particleSystem.minLifeTime = 0.3;
-  particleSystem.maxLifeTime = 1.5;
+  particleSystem.maxLifeTime = 1.0;
 
   // Emission rate
-  particleSystem.emitRate = 100;
+  particleSystem.emitRate = 150;
 
   // Blend mode : BLENDMODE_ONEONE, or BLENDMODE_STANDARD
   particleSystem.blendMode = ParticleSystem.BLENDMODE_ONEONE;
