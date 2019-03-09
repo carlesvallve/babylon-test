@@ -1,6 +1,7 @@
 import { TransformNode, Vector3, Color3, Mesh } from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
 import { spaceshipParticles } from "../../utils/particles";
+import { addToEnvironmentEffects } from "../../utils/babylon-utils";
 
 export default class Spaceship extends TransformNode {
   scene;
@@ -13,20 +14,23 @@ export default class Spaceship extends TransformNode {
     this.scene = scene;
 
     this.initMesh(props.mesh);
+    this.initMaterial();
     this.initParticles();
+    addToEnvironmentEffects(this.scene, this);
   }
 
   initMesh(mesh) {
     this.mesh = mesh; // gameObject.getChildren()[0];
     this.mesh.setParent(this);
-    this.mesh.position = Vector3.Zero();
-    this.material = this.mesh.material;
-    this.material.diffuseColor = randomColor3(); 
-    // this.material.specularColor = randomColor3(); // new Color3(0.6, 0.6, 0.6);
-    // this.material.emissiveColor = randomColor3()
+    this.mesh.position = Vector3.Zero();   
+  }
 
-    // add mesh to shadows and mirrors
-    this.addToEnvironmentEffects(mesh);
+  initMaterial() {
+    this.material = this.mesh.material;
+    const c = randomColor3();
+    this.material.diffuseColor = c; //randomColor3(); 
+    this.material.specularColor = new Color3(0.8, 0.8, 0.8); //randomColor3();
+    // this.material.emissiveColor = c; // randomColor3() 
   }
 
   initParticles() {
@@ -37,15 +41,7 @@ export default class Spaceship extends TransformNode {
       emitter.isVisible = false;
       const particleSystem = spaceshipParticles(this.scene, emitter, thruster);
       this.thrusters.push({ emitter, particleSystem });
-
-      // add particles to shadows and mirrors
-      this.addToEnvironmentEffects(emitter);
     })
-  }
-
-  addToEnvironmentEffects(mesh) {
-    if (this.scene.env.shadowGenerator) { this.scene.env.shadowGenerator.getShadowMap().renderList.push(mesh); }
-    if (this.scene.ground.mirror) { this.scene.ground.mirror.texture.renderList.push(mesh); }
   }
 
   init() {

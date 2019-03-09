@@ -1,5 +1,5 @@
-import { Vector3, Color3, Plane } from "@babylonjs/core/Maths/math";
-import { ArcRotateCamera, Texture, MirrorTexture, StandardMaterial, Mesh } from "@babylonjs/core";
+import { Vector3, Color3, Plane, Color4 } from "@babylonjs/core/Maths/math";
+import { ArcRotateCamera, Texture, MirrorTexture, StandardMaterial, Mesh, VolumetricLightScatteringPostProcess, GlowLayer, Scene } from "@babylonjs/core";
 import { CubicEase, EasingFunction, Animation } from "@babylonjs/core";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
@@ -75,13 +75,16 @@ export const animateCameraTo = (
 
 export const setEnvironment = (
   scene,
+  camera,
   options = {
     clearColor: color3(Colors.black),
     ambientColor: color3(Colors.darkgrey),
+    fogOptions: { mode: Scene.FOGMODE_EXP, density: 0.01, color: color3(Colors.black) },
+    glowOptions: { intensity: 0.6, color: color3(Colors.black) }
   }
 ) => {
 
-  const { clearColor, ambientColor } = options;
+  const { clearColor, ambientColor, fogOptions, glowOptions } = options;
 
   // scene
   scene.clearColor = clearColor; // randomColor4(),
@@ -90,14 +93,13 @@ export const setEnvironment = (
   // lights
   const alight = setAmbientLight(scene);
   const dlight = setDirectionalLight(scene,
-    { intensity: 5, pos: new Vector3(-50, 50, -0), dir: new Vector3(-40, 30, -40) }
+    { intensity: 1, pos: new Vector3(-50, 50, -0), dir: new Vector3(-40, 30, -40) }
   );
 
   // shadows
   const shadowLight = setDirectionalLight(scene, 
-    { intensity: 0.5, pos: new Vector3(0, 50, -0), dir: new Vector3(0, -1, 0) }
+    { intensity: 0.2, pos: new Vector3(0, 50, -0), dir: new Vector3(0, -1, 0) }
   );
-
   const shadowGenerator = setShadowGenerator(shadowLight);
 
   // skybox
@@ -106,9 +108,51 @@ export const setEnvironment = (
   // lens flare
   const lensFlare = setLensFlareSystem(scene, dlight)
 
-  return { alight, dlight, shadowLight, shadowGenerator, skybox, lensFlare };
+  // Fog
+  let fog = null;
+  if (fogOptions) {
+    fog = setFog(scene, fogOptions);
+  }
+
+  // glow layer
+  let glowLayer;
+  if (glowOptions) {
+    glowLayer = new GlowLayer("glow", scene, { mainTextureSamples: 1 });
+    glowLayer.intensity = glowOptions.intensity; //0.6;
+    glowLayer.neutralColor = glowOptions.color; // new Color4(0.5, 0.5, 0.5, 0.5);
+  }
+  
+  return { alight, dlight, shadowLight, shadowGenerator, skybox, lensFlare, glowLayer, fog };
 }
 
+export const addToEnvironmentEffects = (scene, obj) => {
+  obj.getChildMeshes(false).map((mesh) => {
+    if (scene.env.glowLayer) { scene.env.glowLayer.addIncludedOnlyMesh(mesh); }
+    if (scene.env.shadowGenerator) { scene.env.shadowGenerator.getShadowMap().renderList.push(mesh); }
+    if (scene.ground.mirror) { scene.ground.mirror.texture.renderList.push(mesh); }
+  })
+}
+
+// export const addToEnvironmentEffects = (scene, mesh) => {
+//   if (scene.env.shadowGenerator) { scene.env.shadowGenerator.getShadowMap().renderList.push(mesh); }
+//   if (scene.ground.mirror) { scene.ground.mirror.texture.renderList.push(mesh); }
+// }
+
+export const setFog = (scene, options = { mode: Scene.FOGMODE_NONE, density: 0.005, color: color3(Colors.black) }) => {
+  const  { mode, density, color } = options;
+  console.log(mode)
+  scene.fogMode = mode; 
+  scene.fogColor = color;
+  scene.fogDensity = density;
+  // Scene.FOGMODE_EXP;
+  // Scene.FOGMODE_NONE;
+  // Scene.FOGMODE_EXP;
+  // Scene.FOGMODE_EXP2;
+  // Scene.FOGMODE_LINEAR;
+  // Only if LINEAR
+  // scene.fogStart = 20.0;
+  // scene.fogEnd = 60.0;
+}
 export const setAmbientLight = (
   scene, options = {
   intensity: 0.5,
@@ -136,9 +180,25 @@ export const setDirectionalLight = (
   dlight.shadowMaxZ = 2500;
 
   // dlight.setDirectionToTarget(Vector3.Zero());
-
   return dlight;
 }
+
+export const setGodRays = (
+  engine, scene, camera, light, texture, options = {}) => {
+
+  // Create the "God Rays" effect (volumetric light scattering)
+	var godrays = new VolumetricLightScatteringPostProcess('godrays', 1.0, camera, null, 100, Texture.BILINEAR_SAMPLINGMODE, engine, false);
+
+	// By default it uses a billboard to render the sun, just apply the desired texture
+	// position and scale
+	(<any>godrays.mesh.material).diffuseTexture = new Texture('textures/sun.png', scene, true, false, Texture.BILINEAR_SAMPLINGMODE);
+	(<any>godrays.mesh.material).hasAlpha = true;
+	godrays.mesh.position = new Vector3(-150, 150, 150);
+	godrays.mesh.scaling = new Vector3(350, 350, 350);
+
+	light.position = godrays.mesh.position;
+}
+  
   
 
 export const setShadowGenerator = (light, meshArr = []) => {
@@ -185,10 +245,10 @@ export const setSkybox = (scene, fileName = null) => {
 }
 
 
-export const setLensFlareSystem = (scene, light) => {
+export const setLensFlareSystem = (scene, source) => {
   // To do so, you have to first create a LensFlareSystem:
   // The second parameter defines the source (the emitter) of the lens flares (it can be a camera, a light or a mesh).
-  const lensFlareSystem = new LensFlareSystem("lensFlareSystem", light, scene);
+  const lensFlareSystem = new LensFlareSystem("lensFlareSystem", source, scene);
   
   // Then, you can add flares to your system with the following code:
   const flare0 = new LensFlare(0.2, 0, new Color3(1, 1, 1), "assets/particles/lens5.png", lensFlareSystem);

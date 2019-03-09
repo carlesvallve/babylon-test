@@ -17,9 +17,9 @@ import {
   setTexture,
   getFileName,
   animateCameraTo,
+  addToEnvironmentEffects,
 } from "../utils/babylon-utils";
-import { getRandomItemsFromArr, getRandomVector3 } from "../utils/math";
-
+import { getRandomItemsFromArr, getRandomVector3, radians } from "../utils/math";
 
 
 export default class LoaderScene extends Scene {
@@ -33,9 +33,8 @@ export default class LoaderScene extends Scene {
 
   constructor(canvas, engine, options) {
     super(engine, options);
-
-    this.env = this.setEnvironment();
     this.camera = this.setCamera(canvas);
+    this.env = this.setEnvironment();
     this.ground = this.initGround();
 
     this.loadContent();
@@ -43,7 +42,7 @@ export default class LoaderScene extends Scene {
 
 
   setEnvironment() {
-    return setEnvironment(this)
+    return setEnvironment(this, this.camera)
   }
 
   setCamera(canvas) {
@@ -63,39 +62,6 @@ export default class LoaderScene extends Scene {
     return camera;
   }
 
-  loadContent() {
-    const path = 'assets/meshes/babylon/spaceships/';
-    const fileName = 'spaceships.babylon';
-
-    loadMesh(this, path, fileName, (result, error) => {
-      if (error) {
-        console.error('Something went wrong when loading content...');
-        console.error(error.message);
-        console.error(error.exception);
-        return;
-      }
-
-      this.initContent(result);
-      this.initPicker()
-    });
-  }
-
-  initContent(result) {
-    // initialize spaceships
-    this.spaceships = this.initSpaceships();
-    
-    // add loaded meshes to shadowmap and mirror
-    // result.loadedMeshes.map(mesh => {
-    //   if (this.env.shadowGenerator) {
-    //     this.env.shadowGenerator.getShadowMap().renderList.push(mesh);
-    //   }
-    //   if (this.ground.mirror) {
-    //     this.ground.mirror.texture.renderList.push(mesh);
-    //     this.ground.mirror.texture.renderList.push(mesh);
-    //   }
-    // });
-  }
-
   initGround() {
     const size = 128;
     // random texture for both ground and mirror
@@ -104,12 +70,12 @@ export default class LoaderScene extends Scene {
     const bumpTexture = setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
     // mirror
-    // const mirror = null;
-    const mirror = setMirror(this, {
+    let mirror = null;
+    mirror = setMirror(this, {
       name: 'mirror',
       size: size,
       mirrorSize: 512,
-      position: new Vector3(0, 0.001, 0),
+      position: new Vector3(0, 0.01, 0),
       direction: new Vector3(0, -1, 0),
       distance: 0,
       level: 0.5,
@@ -130,6 +96,30 @@ export default class LoaderScene extends Scene {
     ground.receiveShadows = true;
     ground.isPickable = false;
 
+    
+
+  //   var GB = GeometryBuilder ;
+	// 	  GeometryBuilder.InitializeEngine();
+	// 	  ShaderBuilder.InitializeEngine();
+		
+	// 	  // define new Builder
+	// 	  var geo1 = function (op) {
+  //           var builder =    function (s /*{seg:number}*/, geo) {
+  // var step = s.size/s.seg;
+  //    for(var i=0;i<s.seg;i++){for(var j=0;j<s.seg;j++){
+  //        var p  = {x:s.x+j*step , y:0., z:s.y+i*step };
+  //        var ns = 
+	// 		 min(15, max(-20., 30 * noise.simplex3(p.x * 0.003, p.z * 0.01, 0.003))) +
+	// 		 80 * noise.simplex3(p.x * 0.005, p.z * 0.005, 0.01);
+		
+	// 	 ns = ns / (abs(ns) + 0.0001) *8. * log( 20.*abs(ns + 0.0001)) +
+	// 	 0.5 * noise.simplex3(p.x * 0.2, p.z * 0.2, 0.01) +
+	// 	 10. * noise.simplex3(p.x * 0.0, p.z * 0.01, 0.01);
+  //      30. * noise.simplex3(p.x * 0.005, p.z * 0.05, 0.01);
+
+  //       GB.PushVertex(geo,{x:p.x,y:ns,z:p.z})   ; 
+  //      geo.uvs.push(0.5,0.5);   
+
     // const hmaps = ['brittania', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', 'tamriel', 'uk'];
     // const fileName = getRandomItemsFromArr(hmaps, 1)[0];
     // console.log(fileName)
@@ -142,6 +132,23 @@ export default class LoaderScene extends Scene {
     // map.material = mapMaterial;
 
     return { mesh: ground, material: ground.material, texture, mirror };
+  }
+
+  loadContent() {
+    const path = 'assets/meshes/babylon/spaceships/';
+    const fileName = 'spaceships.babylon';
+
+    loadMesh(this, path, fileName, (result, error) => {
+      if (error) {
+        console.error('Something went wrong when loading content...');
+        console.error(error.message);
+        console.error(error.exception);
+        return;
+      }
+
+      this.initSpaceships();
+      this.initPicker()
+    });
   }
 
   initSpaceships() {
