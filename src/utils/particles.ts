@@ -14,9 +14,9 @@ export const spaceshipParticles = (scene, emmiterObject, emitBox, color) => {
   particleSystem.maxEmitBox = emitBox.max; // new Vector3(d, d, -d); // To...
 
   // Colors of all particles
-  particleSystem.color1 = new Color4(color.r / 1, color.g / 1, color.b / 1, 1.0);; //new Color4(0.7, 0.8, 1.0, 1.0);
+  particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0); // new Color4(color.r / 1, color.g / 1, color.b / 1, 1.0);; //new Color4(0.7, 0.8, 1.0, 1.0);
   particleSystem.color2 = new Color4(color.r / 2, color.g / 2, color.b / 2, 1.0); // new Color4(0.2, 0.5, 1.0, 1.0);
-  particleSystem.colorDead = new Color4(color.r / 10, color.g / 10, color.b / 10, 0.0); // new Color4 (0, 0, 0.2, 0.0);
+  particleSystem.colorDead = new Color4(color.r / 10, color.g / 10, color.b / 10, 1.0); // new Color4 (0, 0, 0.2, 0.0);
 
   // Size of each particle (random between...
   particleSystem.minSize = 0.1;
