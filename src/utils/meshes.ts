@@ -30,7 +30,7 @@ export const findMesh = (scene, name) => {
   return scene.meshes.find(mesh => mesh.name === name);
 }
 
-export const setTexture = (scene, fileName = null, size = {x : 0, y: 0}) => {
+export const setTexture = (scene, fileName = null, size = { x : 0, y: 0 }) => {
   // if no fileName was given get a random one
   if (!fileName) {
     const types = {scifi: 5, stone: 6, white: 7, wood: 4 };
@@ -38,7 +38,7 @@ export const setTexture = (scene, fileName = null, size = {x : 0, y: 0}) => {
     fileName = `${item.key}-${getRandomInt(1, item.value)}`
   }
 
-  console.log(fileName);
+  console.log(fileName, size);
   
   // create texture at random repeat size
   const texture = new Texture(`/assets/textures/${fileName}.jpg`, scene);

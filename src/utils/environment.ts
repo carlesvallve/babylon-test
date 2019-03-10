@@ -179,7 +179,7 @@ export const setSkybox = (scene, fileName = null) => {
   }
   
   const envTexture = new CubeTexture(`${path}${fileName}`, scene); 
-  const skybox = scene.createDefaultSkybox(envTexture, true, 1000);
+  const skybox = scene.createDefaultSkybox(envTexture, true, 512);
   return skybox;
 }
 

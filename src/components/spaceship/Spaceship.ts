@@ -46,7 +46,7 @@ export default class Spaceship extends TransformNode {
   }
 
   initVars() {
-    this.delta = 0.1
+    this.delta = 0.075
     this.color = randomColor3();
 
     this.vel = { x: 0, y: 0, rot: 0 };

@@ -16,6 +16,7 @@ import { loadMesh, findMesh, setTexture, getFileName, } from "../utils/meshes";
 
 // spaceships
 import Spaceship from "../components/spaceship/Spaceship";
+import { getRandomItemsFromArr } from "../utils/math";
 
 
 export default class LoaderScene extends Scene {
@@ -121,11 +122,12 @@ export default class LoaderScene extends Scene {
   }
 
   initGround() {
-    const size = 128;
+    const size = 512;
     // random texture for both ground and mirror
-    const texture = setTexture(this, 'stone-1');
+    // const texture = setTexture(this, 'stone-1', { x: 32, y: 32 });
+    const texture = setTexture(this, 'stone-6', { x: 32, y: 32 });
 
-    const bumpTexture = setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
+    const bumpTexture = null; //setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
     // mirror
     let mirror = null;
@@ -148,22 +150,24 @@ export default class LoaderScene extends Scene {
     ground.scaling = new Vector3(size, 1, size);
     ground.material = new StandardMaterial('material', this);
     // (<StandardMaterial>ground.material).diffuseColor = new Color3(0.3, 0.3, 0.3);
-    (<StandardMaterial>ground.material).specularColor = new Color3(0.6, 0.6, 0.6);
+    // (<StandardMaterial>ground.material).specularColor = new Color3(0.6, 0.6, 0.6);
     (<StandardMaterial>ground.material).diffuseTexture = texture;
     if (bumpTexture) { (<StandardMaterial>ground.material).bumpTexture = bumpTexture; }
     ground.receiveShadows = true;
     ground.isPickable = false;
 
-    // const hmaps = ['brittania', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', 'tamriel', 'uk'];
-    // const fileName = getRandomItemsFromArr(hmaps, 1)[0];
-    // console.log(fileName)
-    // var map = Mesh.CreateGroundFromHeightMap("map", `assets/heightmaps/${fileName}.jpg`, size, size, size / 2, 0, 22, this, false,);
-    // var mapMaterial = new StandardMaterial("mapMaterial", this);
-    // // mapMaterial.diffuseTexture = new Texture("assets/textures/ground.jpg", this);
-    // mapMaterial.diffuseTexture = texture; // setTexture(this);
+    // heightmap
+    const hmaps = ['brittania', 'uk', ] // 'tamriel', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', ];
+    const fileName = getRandomItemsFromArr(hmaps, 1)[0];
+    console.log(fileName)
+    var map = Mesh.CreateGroundFromHeightMap("map", `assets/heightmaps/${fileName}.jpg`, size, size, size / 2, 0, 22, this, false,);
+    var mapMaterial = new StandardMaterial("mapMaterial", this);
+    // mapMaterial.diffuseTexture = new Texture("assets/textures/ground.jpg", this);
+    mapMaterial.diffuseTexture = texture; // setTexture(this);
     // mapMaterial.specularColor = new Color3( 1, 1, 1);
-    // map.position.y = -2.05;
-    // map.material = mapMaterial;
+    map.position.y = -2.05;
+    map.material = mapMaterial;
+    map.isPickable = false;
 
     return { mesh: ground, material: ground.material, texture, mirror };
   }
@@ -195,11 +199,11 @@ export default class LoaderScene extends Scene {
       return spaceship;
     }
 
-    const d = 4;
-    const y = 2;
+    const d = 5;
+    const y = 7;
     return {
       droid: initSpaceship(this, 'DroidFighter', new Vector3(-d * 3, y, 0)),
-      speedy: initSpaceship(this, 'SpeedFighter', new Vector3(-d, 5, 0)),
+      speedy: initSpaceship(this, 'SpeedFighter', new Vector3(-d, y, 0)),
       shark: initSpaceship(this, 'SharkFighter', new Vector3(d, y, 0)),
       star: initSpaceship(this, 'StarFighter', new Vector3(d * 3, y, 0)),
     }
