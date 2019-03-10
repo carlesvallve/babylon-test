@@ -9,7 +9,7 @@ export const setArcCamera = (
   beta: Math.PI / 3, // 0
   radius: 150, // 10
   target: new Vector3(0, 0, 0),
-  pos: new Vector3(10, 10, -10),
+  pos: new Vector3(20, 20, -20),
 }) => {
   const  { alpha, beta, radius, target, pos } = options;
 

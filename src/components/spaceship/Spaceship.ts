@@ -8,11 +8,11 @@ export default class Spaceship extends TransformNode {
   scene;
   mesh;
   material;
+
   thrusters;
 
-  // basic
-  vel = { x: 0, y: 0, rot: 0 };
-  acc = { x: 0, y: 0, rot: 0 };
+  vel;
+  acc;
   rot = 0;
   
   traction;
@@ -23,7 +23,6 @@ export default class Spaceship extends TransformNode {
   powerPlus;
   powerMinus
   powerMax;
-  
 
 
   constructor(name, scene, isPure, props) {
@@ -35,6 +34,15 @@ export default class Spaceship extends TransformNode {
     this.initParticles();
     addToEnvironmentEffects(this.scene, this);
 
+    this.initVars();
+
+    this.scene.registerBeforeRender(() => {
+      // delta allows us to speedup or slowdown our movements
+      this.move(0.1); 
+    });
+  }
+
+  initVars() {
     this.vel = { x: 0, y: 0, rot: 0 };
     this.acc = { x: 0, y: 0, rot: 0 };
     this.rot = 0;
@@ -47,11 +55,6 @@ export default class Spaceship extends TransformNode {
     this.powerPlus = 0.1;
     this.powerMinus = 0.1;
     this.powerMax = 1;
-
-    this.scene.registerBeforeRender(() => {
-      // delta allows us to speedup or slowdown our movements
-      this.move(0.1); 
-    });
   }
 
   // ==================================================

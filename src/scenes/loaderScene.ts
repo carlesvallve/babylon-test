@@ -1,7 +1,8 @@
 import { Scene } from "@babylonjs/core/scene";
-import { Vector3, Size, Axis, Space } from "@babylonjs/core/Maths/math";
+import { Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { StandardMaterial, Color3, PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction, ArcRotateCamera } from '@babylonjs/core';
+import  { StandardMaterial, Color3 } from '@babylonjs/core';
+import  { PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 // import "@babylonjs/core/Meshes/meshBuilder";
 
 // camera
@@ -24,8 +25,6 @@ export default class LoaderScene extends Scene {
   spaceships;
   selected;
   vj;
-
-  // initContent;
 
   constructor(canvas, engine, options) {
     super(engine, options);
@@ -58,40 +57,38 @@ export default class LoaderScene extends Scene {
       const ship = this.selected;
       if (!ship) { return; }
 
+      // todo: make this better, maybe passing map to the spaceship
       let keyStatus = '';
-
-      if ((map["w"] || map["W"])) {
-        keyStatus = 'up';
-      };
-
-      if ((map["s"] || map["S"])) {
-        keyStatus = 'down';
-      };
-
-      if ((map["a"] || map["A"])) { 
-        keyStatus = 'left';
-      };
-
-      if ((map["d"] || map["D"])) {
-        keyStatus = 'right';
-      };
+      if ((map["w"] || map["W"])) { keyStatus = 'up'; };
+      if ((map["s"] || map["S"])) { keyStatus = 'down'; };
+      if ((map["a"] || map["A"])) { keyStatus = 'left'; };
+      if ((map["d"] || map["D"])) { keyStatus = 'right'; };
 
       // update ship control
       ship.control(keyStatus);
 
       // update ship camera
-      const camera = this.camera;
-      // camera.setTarget(ship.position);
+      this.cameraFollow(ship, false);
+    });
+  }
+
+  cameraFollow(ship, animated) {
+    const camera = this.camera;
+    let p: Vector3;
+
+    if (animated) {
       const d = 0.5;
-      let p = new Vector3(
+      p = new Vector3(
         camera.position.x + (ship.position.x - camera.position.x) * d,
         camera.position.y + (ship.position.y - camera.position.y) * d,
         camera.position.z + (ship.position.z - camera.position.z) * d,
       )
-      camera.setTarget(p);
+    } else {
+      p = ship.position;
+    }
 
-      camera.update();
-    });
+    camera.setTarget(p);
+    camera.update();
   }
 
   setJoystick() {
@@ -112,7 +109,6 @@ export default class LoaderScene extends Scene {
    });
 
    console.log(vj)
-
   }
 
 
@@ -120,20 +116,9 @@ export default class LoaderScene extends Scene {
     return setEnvironment(this, this.camera)
   }
 
+
   setCamera(canvas) {
     const camera = setArcCamera(canvas, this);
-    // camera.lowerAlphaLimit = 180;
-    // camera.lowerBetaLimit = 180;
-
-    // var cam_startZoom = 3, cam_minZoom = 1.5, cam_maxZoom = 25;
-    // var cam_startRoll = -148, cam_lowerRollLimit = null, cam_upperRollLimit = null;
-    // var cam_startPitch = 76, cam_lowerPitchLimit = 0.1, cam_upperPitchLimit = 180;			
-    // var orbitalCamera = new ArcRotateCamera("CameraOrbit", (Math.PI * cam_startRoll / 180), (Math.PI * cam_startPitch / 180), cam_startZoom, new Vector3(0,0.3,0), this);
-    // orbitalCamera.lowerRadiusLimit = cam_minZoom; orbitalCamera.upperRadiusLimit = cam_maxZoom; orbitalCamera.wheelPrecision = 150;
-    // orbitalCamera.lowerBetaLimit = (Math.PI * cam_lowerPitchLimit / 180); orbitalCamera.upperBetaLimit = (Math.PI * cam_upperPitchLimit / 180);
-    // orbitalCamera.lowerAlphaLimit = (Math.PI * cam_lowerRollLimit / 180); orbitalCamera.upperAlphaLimit = (Math.PI * cam_upperRollLimit / 180);
-    // orbitalCamera.minZ = 0.6; orbitalCamera.maxZ = 10; orbitalCamera.fov = Tools.ToRadians(50);				
-
     return camera;
   }
 
@@ -170,30 +155,6 @@ export default class LoaderScene extends Scene {
     if (bumpTexture) { (<StandardMaterial>ground.material).bumpTexture = bumpTexture; }
     ground.receiveShadows = true;
     ground.isPickable = false;
-
-    
-
-  //   var GB = GeometryBuilder ;
-	// 	  GeometryBuilder.InitializeEngine();
-	// 	  ShaderBuilder.InitializeEngine();
-		
-	// 	  // define new Builder
-	// 	  var geo1 = function (op) {
-  //           var builder =    function (s /*{seg:number}*/, geo) {
-  // var step = s.size/s.seg;
-  //    for(var i=0;i<s.seg;i++){for(var j=0;j<s.seg;j++){
-  //        var p  = {x:s.x+j*step , y:0., z:s.y+i*step };
-  //        var ns = 
-	// 		 min(15, max(-20., 30 * noise.simplex3(p.x * 0.003, p.z * 0.01, 0.003))) +
-	// 		 80 * noise.simplex3(p.x * 0.005, p.z * 0.005, 0.01);
-		
-	// 	 ns = ns / (abs(ns) + 0.0001) *8. * log( 20.*abs(ns + 0.0001)) +
-	// 	 0.5 * noise.simplex3(p.x * 0.2, p.z * 0.2, 0.01) +
-	// 	 10. * noise.simplex3(p.x * 0.0, p.z * 0.01, 0.01);
-  //      30. * noise.simplex3(p.x * 0.005, p.z * 0.05, 0.01);
-
-  //       GB.PushVertex(geo,{x:p.x,y:ns,z:p.z})   ; 
-  //      geo.uvs.push(0.5,0.5);   
 
     // const hmaps = ['brittania', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', 'tamriel', 'uk'];
     // const fileName = getRandomItemsFromArr(hmaps, 1)[0];
@@ -238,7 +199,6 @@ export default class LoaderScene extends Scene {
 
     const d = 4;
     const y = 2;
-
     return {
       droid: initSpaceship(this, 'DroidFighter', new Vector3(-d * 3, y, 0)),
       speedy: initSpaceship(this, 'SpeedFighter', new Vector3(-d, 5, 0)),
@@ -249,31 +209,14 @@ export default class LoaderScene extends Scene {
 
   selectSpaceship(selected) {
     this.selected = selected;
-
-    // const d = 32;
-    // const tpos = selected.getAbsolutePosition();
-
-    // animateCameraTo(
-    //   this.camera,
-    //   tpos,
-    //   getRandomVector3(
-    //     new Vector3(tpos.x-d, tpos.y+1, tpos.z-d),
-    //     new Vector3(tpos.x+d, tpos.y+d, tpos.z+d)
-    //   ), 
-    //   60, 60 * 2
-    // );
   }
 
   initPicker() {
     this.onPointerObservable.add((e) => {
       if (e.pickInfo.hit && e.pickInfo.pickedMesh && e.event.button === 0) {
-        // console.log(e.pickInfo)
         this.selectSpaceship(e.pickInfo.pickedMesh.parent);
       }
-    }, PointerEventTypes.POINTERUP);
-    
+    }, PointerEventTypes.POINTERUP); 
   }
-
   
-
 }
