@@ -41,31 +41,24 @@ export default class LoaderScene extends Scene {
   }
 
   setKeyboard() {
-    var map = {}; //object for multiple key presses
+    var keyMap = {}; //object for multiple key presses
     this.actionManager = new ActionManager(this);
   
     this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, function (evt) {
-        map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+        keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
   
     }));
   
     this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
-        map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+        keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
     }));
 
     this.registerAfterRender(() => {
       const ship = this.selected;
       if (!ship) { return; }
 
-      // todo: make this better, maybe passing map to the spaceship
-      let keyStatus = '';
-      if ((map["w"] || map["W"])) { keyStatus = 'up'; };
-      if ((map["s"] || map["S"])) { keyStatus = 'down'; };
-      if ((map["a"] || map["A"])) { keyStatus = 'left'; };
-      if ((map["d"] || map["D"])) { keyStatus = 'right'; };
-
       // update ship control
-      ship.control(keyStatus);
+      ship.control(keyMap); // keyStatus
 
       // update ship camera
       this.cameraFollow(ship, false);
@@ -218,5 +211,5 @@ export default class LoaderScene extends Scene {
       }
     }, PointerEventTypes.POINTERUP); 
   }
-  
+
 }

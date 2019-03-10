@@ -11,9 +11,11 @@ export default class Spaceship extends TransformNode {
 
   thrusters;
 
+  delta;
+
   vel;
   acc;
-  rot = 0;
+  rot;
   
   traction;
   friction;
@@ -23,6 +25,8 @@ export default class Spaceship extends TransformNode {
   powerPlus;
   powerMinus
   powerMax;
+
+  break;
 
 
   constructor(name, scene, isPure, props) {
@@ -38,23 +42,27 @@ export default class Spaceship extends TransformNode {
 
     this.scene.registerBeforeRender(() => {
       // delta allows us to speedup or slowdown our movements
-      this.move(0.1); 
+      this.move(this.delta); 
     });
   }
 
   initVars() {
+    this.delta = 0.2
+
     this.vel = { x: 0, y: 0, rot: 0 };
-    this.acc = { x: 0, y: 0, rot: 0 };
+    this.acc = { x: 0, y: 0 };
     this.rot = 0;
     
-    this.friction = 0.998;
-    this.traction = 2;
+    this.friction = 0.995; // 0.998;
+    this.traction = 0.5;
     this.powerRot = 35;
 
     this.power = 0;
     this.powerPlus = 0.1;
-    this.powerMinus = 0.1;
+    this.powerMinus = 0.2;
     this.powerMax = 1;
+
+    this.break = 0.95;
   }
 
   // ==================================================
@@ -86,58 +94,62 @@ export default class Spaceship extends TransformNode {
 
   // ==================================================
 
-  control(keyStatus) {
+  control(keyMap) {
     // rotate
-    if (keyStatus === 'left') {
-      this.vel.rot = -this.powerRot; // -6;
-    } else if (keyStatus === 'right') {
-      this.vel.rot = this.powerRot; // 6;
-    } else {
-      this.vel.rot = 0;
-    }
+    this.vel.rot = 0;
+    if ((keyMap.a || keyMap.A)) { // left
+      this.vel.rot = -this.powerRot;
+    } else
+    if ((keyMap.d || keyMap.D)) { // right
+      this.vel.rot = this.powerRot;
+    } 
 
-    // accelerate / break
-    let friction = this.friction;
-    if (keyStatus === 'up') {
-      // increase power
+    // accelerate
+    if ((keyMap.w || keyMap.W)) {
       this.power += this.powerPlus;
       if (this.power >= this.powerMax) { this.power = this.powerMax; }
-    } else if (keyStatus === 'down') {
-      // decrease power
+    } 
+
+    // deaccelerate
+    if ((keyMap.s || keyMap.S)) {
       this.power -= this.powerMinus;
       if (this.power <= 0) { this.power = 0; }
-      // increase friction
-      friction *= (1 - this.powerMinus * 0.5);
-    } 
+      this.vel.x *= this.break;
+      this.vel.y *= this.break;   
+    }
+  }
+
+  move(delta) {
+    // apply rotation
+    this.rot += this.vel.rot * delta;
+    if (this.rot > 360) { this.rot -= 360; }
+    if (this.rot < 0) { this.rot += 360; }
+    this.rotation.y = radians(this.rot);
 
     // apply acceleration
     var rad = ((this.rot-90) * Math.PI)/180;
     this.acc.x = this.power * Math.cos(rad);
     this.acc.y = this.power * Math.sin(rad);
 
-    // apply friction
-    this.vel.x *= friction;
-    this.vel.y *= friction;
-  }
-
-  move(delta) {
-    // apply rotation
-    this.rot += this.vel.rot * delta;
-    if (this.rot > 360) {
-      this.rot -= 360;
-    } else if (this.rot < 0) {
-      this.rot += 360;
-    }
-    this.rotation.y = radians(this.rot);
+    this.power *= this.friction;
+    this.vel.x *= this.friction;
+    this.vel.y *= this.friction;
 
     // apply velocity
     this.vel.x += this.acc.x * delta;
     this.vel.y += this.acc.y * delta;
+
+    // apply friction
+    this.vel.x *= this.friction;
+    this.vel.y *= this.friction;
+
+    // set position
     this.position.x += this.vel.x * delta;
     this.position.z -= this.vel.y * delta;
 
-    // apply traction (force move into current direction)
-    this.translate(Axis.Z, this.power * this.traction * delta, Space.LOCAL);
+    // apply traction (force move into current direction at current velocity)
+    const d = new Vector3(this.vel.x, 0, this.vel.y).length();
+    this.translate(Axis.Z, d * this.traction * delta, Space.LOCAL);
   }
 
 }
