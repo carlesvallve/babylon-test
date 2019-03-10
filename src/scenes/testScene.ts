@@ -6,14 +6,16 @@ import { SimpleMaterial } from "@babylonjs/materials/simple";
 // Required side effects to populate the Create methods on the mesh class. Without this, the bundle would be smaller but the createXXX methods from mesh would not be accessible.
 import "@babylonjs/core/Meshes/meshBuilder";
 
-// utils
+// camera
+import { setArcCamera, animateCameraTo, } from '../utils/camera';
+
+// environment
 import { 
-  setArcCamera,
   setAmbientLight,
   setDirectionalLight,
   setShadowGenerator,
   setLensFlareSystem,
-} from "../utils/babylon-utils";
+} from "../utils/environment";
 
 export const testScene = (canvas, engine) => {
   // scene

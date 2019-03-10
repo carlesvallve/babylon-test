@@ -1,26 +1,20 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Vector3, Size, Axis, Space } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { Texture, StandardMaterial, Color3, PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
-import "@babylonjs/core/Meshes/meshBuilder";
+import  { StandardMaterial, Color3, PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction, ArcRotateCamera } from '@babylonjs/core';
+// import "@babylonjs/core/Meshes/meshBuilder";
+
+// camera
+import { setArcCamera, animateCameraTo, } from '../utils/camera';
+
+// environment
+import { setEnvironment, setMirror, } from "../utils/environment";
+
+// meshes
+import { loadMesh, findMesh, setTexture, getFileName, } from "../utils/meshes";
 
 // spaceships
 import Spaceship from "../components/spaceship/Spaceship";
-
-// utils
-import { 
-  setArcCamera,
-  setEnvironment,
-  setMirror,
-  loadMesh,
-  findMesh,
-  setTexture,
-  getFileName,
-  animateCameraTo,
-  addToEnvironmentEffects,
-} from "../utils/babylon-utils";
-import { getRandomVector3 } from "../utils/math";
-import { randomColor3 } from "../utils/colors";
 
 
 export default class LoaderScene extends Scene {
@@ -35,6 +29,7 @@ export default class LoaderScene extends Scene {
 
   constructor(canvas, engine, options) {
     super(engine, options);
+    
     this.camera = this.setCamera(canvas);
     this.env = this.setEnvironment();
     this.ground = this.initGround();
@@ -43,6 +38,7 @@ export default class LoaderScene extends Scene {
 
     // this.setJoystick();
     this.setKeyboard();
+
   }
 
   setKeyboard() {
@@ -85,14 +81,16 @@ export default class LoaderScene extends Scene {
 
       // update ship camera
       const camera = this.camera;
-      const d = 1;
+      // camera.setTarget(ship.position);
+      const d = 0.5;
       let p = new Vector3(
         camera.position.x + (ship.position.x - camera.position.x) * d,
         camera.position.y + (ship.position.y - camera.position.y) * d,
         camera.position.z + (ship.position.z - camera.position.z) * d,
       )
       camera.setTarget(p);
-      
+
+      camera.update();
     });
   }
 

@@ -1,5 +1,5 @@
 import { Vector3, VertexBuffer, VertexData, Mesh, Axis, StandardMaterial } from "@babylonjs/core";
-import { addToEnvironmentEffects } from "../utils/babylon-utils";
+import { addToEnvironmentEffects } from "../utils/environment";
 import { color3, Colors } from "../utils/colors";
 import { createTree } from "./SPSTreeGenerator";
 import { radians } from "../utils/math";
