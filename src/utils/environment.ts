@@ -18,15 +18,15 @@ export const setEnvironment = (
     clearColor: color3(Colors.black),
     ambientColor: color3(Colors.darkgrey),
     fogOptions: { mode: Scene.FOGMODE_EXP, density: 0.01, color: color3(Colors.black) },
-    glowOptions: { intensity: 0.6, color: color3(Colors.black) }
+    glowOptions: { intensity: 0.8, color: color3(Colors.black) }
   }
 ) => {
 
   const { clearColor, ambientColor, fogOptions, glowOptions } = options;
 
   // scene
-  scene.clearColor = clearColor; // randomColor4(),
-  scene.ambientColor = ambientColor; // randomColor3(),
+  scene.clearColor = clearColor;
+  scene.ambientColor = ambientColor;
 
   // lights
   const alight = setAmbientLight(scene);

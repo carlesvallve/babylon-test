@@ -1,18 +1,18 @@
-import { TransformNode, Vector3, Color3, Mesh, PowerEase, Axis, Space } from "@babylonjs/core";
+import { TransformNode, Vector3, Color3, Mesh, PowerEase, Axis, Space, StandardMaterial, Quaternion } from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
 import { spaceshipParticles } from "../../utils/particles";
 import { addToEnvironmentEffects } from "../../utils/environment";
 import { radians } from "../../utils/math";
+import Laser from "./Laser";
 
 export default class Spaceship extends TransformNode {
   scene;
   mesh;
   material;
 
-  thrusters;
-
   delta;
-
+  color;
+  
   vel;
   acc;
   rot;
@@ -25,7 +25,6 @@ export default class Spaceship extends TransformNode {
   powerPlus;
   powerMinus
   powerMax;
-
   break;
 
 
@@ -33,12 +32,12 @@ export default class Spaceship extends TransformNode {
     super(name, scene, isPure);
     this.scene = scene;
 
+    this.initVars();
+
     this.initMesh(props.mesh);
     this.initMaterial();
     this.initParticles();
     addToEnvironmentEffects(this.scene, this);
-
-    this.initVars();
 
     this.scene.registerBeforeRender(() => {
       // delta allows us to speedup or slowdown our movements
@@ -47,7 +46,8 @@ export default class Spaceship extends TransformNode {
   }
 
   initVars() {
-    this.delta = 0.2
+    this.delta = 0.1
+    this.color = randomColor3();
 
     this.vel = { x: 0, y: 0, rot: 0 };
     this.acc = { x: 0, y: 0 };
@@ -61,7 +61,6 @@ export default class Spaceship extends TransformNode {
     this.powerPlus = 0.1;
     this.powerMinus = 0.2;
     this.powerMax = 1;
-
     this.break = 0.95;
   }
 
@@ -76,19 +75,19 @@ export default class Spaceship extends TransformNode {
   initMaterial() {
     this.material = this.mesh.material;
     const c = randomColor3();
-    this.material.diffuseColor = c; //randomColor3(); 
-    this.material.specularColor = new Color3(0.8, 0.8, 0.8); //randomColor3();
-    // this.material.emissiveColor = c; // randomColor3() 
+    this.material.diffuseColor = c;
+    this.material.specularColor = new Color3(0.8, 0.8, 0.8);
+    // this.material.emissiveColor = c; 
   }
 
   initParticles() {
-    this.thrusters = [];
+    const thrusters = [];
     spaceshipData[this.name].thrusters.map((thruster, index) => {
       const emitter = Mesh.CreateBox(`thruster${index}`, 0.1, this.scene);
       emitter.setParent(this);
       emitter.isVisible = true;
-      const particleSystem = spaceshipParticles(this.scene, emitter, thruster);
-      this.thrusters.push({ emitter, particleSystem });
+      const particleSystem = spaceshipParticles(this.scene, emitter, thruster, this.color);
+      thrusters.push({ emitter, particleSystem });
     })
   }
 
@@ -116,6 +115,10 @@ export default class Spaceship extends TransformNode {
       if (this.power <= 0) { this.power = 0; }
       this.vel.x *= this.break;
       this.vel.y *= this.break;   
+    }
+
+    if ((keyMap.space || keyMap.SPACE)) {
+      this.shoot();
     }
   }
 
@@ -152,6 +155,17 @@ export default class Spaceship extends TransformNode {
     this.translate(Axis.Z, d * this.traction * delta, Space.LOCAL);
   }
 
+  shoot() {
+    spaceshipData[this.name].lasers.map((pos, index) => {
+      const laser = new Laser('laser', this, {
+        delta: this.delta,
+        pos: new Vector3(pos.x, pos.y, pos.z),
+        rot: this.rotation.y,
+        color: this.color,
+      });
+    });
+  }
+
 }
 
 // ==================================================
@@ -160,23 +174,35 @@ export const spaceshipData = {
   DroidFighter: {
     thrusters: [
       { min: new Vector3(-0.4, -0.1, -2.7), max: new Vector3(0.4, 0.1, -2.7), }
+    ],
+    lasers: [
+      { x: -2.85, y: -1.25, z: 1.85 }, { x: 2.85, y: -1.25, z: 1.85 }
     ]
   },
   SpeedFighter: {
     thrusters: [
       { min: new Vector3(-1.25 -0.075, 0.275, -1.4), max: new Vector3(-1.25 + 0.075, 0.325, -1.4), },
       { min: new Vector3(1.25 -0.075, 0.275, -1.4), max: new Vector3(1.25 + 0.075, 0.325, -1.4), }
+    ],
+    lasers: [
+      { x: -1.2, y: -0.75, z: 0.5 }, { x: 1.2, y: -0.75, z: 0.5 }
     ]
   },
   SharkFighter: {
     thrusters: [
       { min: new Vector3(-0.2, -0.2, -2.1), max: new Vector3(0.2, 0.2, -2.1), }
+    ],
+    lasers: [
+      { x: 0, y: -1.5, z: 3.25 }
     ]
   },
   StarFighter: {
     thrusters: [
       { min: new Vector3(-0.7 -0.15, 0.125, -1.7), max: new Vector3(-0.7 + 0.15, 0.375, -1.7), },
       { min: new Vector3(0.7 -0.15, 0.125, -1.7), max: new Vector3(0.7 + 0.15, 0.375, -1.7), }
+    ],
+    lasers: [
+      { x: -0.1, y: -1.65, z: 3.5 }, { x: 0.1, y: -1.65, z: 3.5 }
     ]
   }
 };

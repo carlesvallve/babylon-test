@@ -45,12 +45,17 @@ export default class LoaderScene extends Scene {
     this.actionManager = new ActionManager(this);
   
     this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyDownTrigger, function (evt) {
-        keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-  
+      keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+
+      // shoot on key-down
+      const scene = this._actionManager._scene
+      if (scene.selected && evt.sourceEvent.key === ' ') {
+        scene.selected.shoot();
+      }
     }));
   
     this.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnKeyUpTrigger, function (evt) {
-        keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+      keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
     }));
 
     this.registerAfterRender(() => {
@@ -58,7 +63,7 @@ export default class LoaderScene extends Scene {
       if (!ship) { return; }
 
       // update ship control
-      ship.control(keyMap); // keyStatus
+      ship.control(keyMap);
 
       // update ship camera
       this.cameraFollow(ship, false);
