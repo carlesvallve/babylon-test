@@ -25,7 +25,7 @@ export default class Laser extends TransformNode {
     this.position = spaceship.position;
     this.translate(Axis.X, props.pos.x, Space.LOCAL);
     this.translate(Axis.Y, props.pos.y, Space.LOCAL);
-    this.translate(Axis.Z, props.pos.z, Space.LOCAL);
+    this.translate(Axis.Z, props.pos.z -  0.6, Space.LOCAL);
     
     this.initVars();
 
@@ -52,7 +52,7 @@ export default class Laser extends TransformNode {
     mesh.receiveShadows = false;
     mesh.isPickable = false;
 
-    mesh.position = new Vector3(0, 1, 0);
+    mesh.position = new Vector3(0, 0, 0);
     mesh.rotation = new Vector3(radians(90), 0, 0);
 
     mesh.material = new StandardMaterial('laser-material', this.scene);

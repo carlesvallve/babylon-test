@@ -176,7 +176,7 @@ export const spaceshipData = {
       { min: new Vector3(-0.4, -0.1, -2.7), max: new Vector3(0.4, 0.1, -2.7), }
     ],
     lasers: [
-      { x: -2.85, y: -1.25, z: 1.85 }, { x: 2.85, y: -1.25, z: 1.85 }
+      { x: -2.85, y: -0.25, z: 1.85 }, { x: 2.85, y: -0.25, z: 1.85 }
     ]
   },
   SpeedFighter: {
@@ -185,7 +185,7 @@ export const spaceshipData = {
       { min: new Vector3(1.25 -0.075, 0.275, -1.4), max: new Vector3(1.25 + 0.075, 0.325, -1.4), }
     ],
     lasers: [
-      { x: -1.2, y: -0.75, z: 0.5 }, { x: 1.2, y: -0.75, z: 0.5 }
+      { x: -1.2, y: 0.25, z: 0.5 }, { x: 1.2, y: 0.25, z: 0.5 }
     ]
   },
   SharkFighter: {
@@ -193,7 +193,7 @@ export const spaceshipData = {
       { min: new Vector3(-0.2, -0.2, -2.1), max: new Vector3(0.2, 0.2, -2.1), }
     ],
     lasers: [
-      { x: 0, y: -1.5, z: 3.25 }
+      { x: 0, y: -0.5, z: 3.25 }
     ]
   },
   StarFighter: {
@@ -202,7 +202,7 @@ export const spaceshipData = {
       { min: new Vector3(0.7 -0.15, 0.125, -1.7), max: new Vector3(0.7 + 0.15, 0.375, -1.7), }
     ],
     lasers: [
-      { x: -0.1, y: -1.65, z: 3.5 }, { x: 0.1, y: -1.65, z: 3.5 }
+      { x: -0.1, y: -0.65, z: 3.6 }, { x: 0.1, y: -0.65, z: 3.6 }
     ]
   }
 };

@@ -31,12 +31,12 @@ export const setEnvironment = (
   // lights
   const alight = setAmbientLight(scene);
   const dlight = setDirectionalLight(scene,
-    { intensity: 1, pos: new Vector3(-50, 50, -0), dir: new Vector3(-40, 30, -40) }
+    { intensity: 0.8, pos: new Vector3(-50, 50, -0), dir: new Vector3(-40, 30, -40) }
   );
 
   // shadows
   const shadowLight = setDirectionalLight(scene, 
-    { intensity: 0.2, pos: new Vector3(0, 50, -0), dir: new Vector3(0, -1, 0) }
+    { intensity: 0.4, pos: new Vector3(0, 50, -0), dir: new Vector3(0, -1, 0) }
   );
   const shadowGenerator = setShadowGenerator(shadowLight);
 
@@ -151,8 +151,8 @@ export const setShadowGenerator = (light, meshArr = []) => {
   shadowGenerator.useBlurExponentialShadowMap = true;
   
   // blurKernel
-  shadowGenerator.useKernelBlur = true;
-  shadowGenerator.blurKernel = 8; // 64;
+  // shadowGenerator.useKernelBlur = true;
+  // shadowGenerator.blurKernel = 2; // 8; // 64;
   
   // for self-shadowing (ie: blocks)
   shadowGenerator.forceBackFacesOnly = true;

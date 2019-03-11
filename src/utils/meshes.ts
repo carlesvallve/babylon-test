@@ -41,7 +41,7 @@ export const setTexture = (scene, fileName = null, size = { x : 0, y: 0 }) => {
   console.log(fileName, size);
   
   // create texture at random repeat size
-  const texture = new Texture(`/assets/textures/${fileName}.jpg`, scene);
+  const texture = new Texture(`/assets/textures/${fileName}`, scene);
   const sc = getRandomInt(1, 9);
   texture.uScale = size.x ? size.x : sc;
   texture.vScale = size.y ? size.y : sc;

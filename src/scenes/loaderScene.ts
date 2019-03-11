@@ -125,7 +125,7 @@ export default class LoaderScene extends Scene {
     const size = 512;
     // random texture for both ground and mirror
     // const texture = setTexture(this, 'stone-1', { x: 32, y: 32 });
-    const texture = setTexture(this, 'stone-6', { x: 32, y: 32 });
+    const texture = setTexture(this, 'stone-6.jpg', { x: 24, y: 24 });
 
     const bumpTexture = null; //setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
@@ -157,7 +157,7 @@ export default class LoaderScene extends Scene {
     ground.isPickable = false;
 
     // heightmap
-    const hmaps = ['brittania', 'uk', ] // 'tamriel', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', ];
+    const hmaps = ['brittania', ]; // 'uk', ] // 'tamriel', 'heightmap1', 'heightmap2', 'heightMapTriPlanar', 'iceland', ];
     const fileName = getRandomItemsFromArr(hmaps, 1)[0];
     console.log(fileName)
     var map = Mesh.CreateGroundFromHeightMap("map", `assets/heightmaps/${fileName}.jpg`, size, size, size / 2, 0, 22, this, false,);
@@ -168,6 +168,7 @@ export default class LoaderScene extends Scene {
     map.position.y = -2.05;
     map.material = mapMaterial;
     map.isPickable = false;
+    map.receiveShadows = true;
 
     return { mesh: ground, material: ground.material, texture, mirror };
   }
