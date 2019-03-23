@@ -12,11 +12,6 @@ export const degrees = (radians) => { // converts from radians to degrees
 };
 
 export const getRandomVector3 = (min:Vector3, max:Vector3): Vector3 => {
-  // const p = new Vector3(
-  //   -min.x + Math.random() * max.x,
-  //   -min.y + Math.random() * max.y,
-  //   -min.z + Math.random() * max.z,
-  // )
   const p = new Vector3(
     getRandomInt(min.x, max.x),
     getRandomInt(min.y, max.y),

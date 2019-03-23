@@ -1,15 +1,19 @@
-import { TransformNode, Vector3, StandardMaterial, Axis, Space, MeshBuilder } from "@babylonjs/core";
+import { TransformNode, Vector3, StandardMaterial, Axis, Space, MeshBuilder, Color4, ParticleSystem, Texture, AbstractMesh } from "@babylonjs/core";
 import { addToEnvironmentEffects } from "../../utils/environment";
 import { radians } from "../../utils/math";
+import { laserExplosionParticles } from "../../utils/particles";
 
 
-export default class Laser extends TransformNode {
+export default class Laser extends AbstractMesh {
   scene;
   spaceship;
   color;
   delta;
   vel;
   range;
+
+  mesh;
+  exploding;
 
   constructor(name, spaceship, props) {
     super(name, spaceship.scene);
@@ -29,7 +33,7 @@ export default class Laser extends TransformNode {
     
     this.initVars();
 
-    this.initMesh();
+    this.mesh = this.initMesh();
     addToEnvironmentEffects(this.scene, this);
 
     this.scene.registerBeforeRender(
@@ -38,8 +42,9 @@ export default class Laser extends TransformNode {
   }
 
   initVars() {
-    this.vel = 10;
-    this.range = 50;
+    this.vel = 20;
+    this.range = 100;
+    this.exploding = false;
   }
 
   initMesh() {
@@ -57,19 +62,46 @@ export default class Laser extends TransformNode {
 
     mesh.material = new StandardMaterial('laser-material', this.scene);
     // (<StandardMaterial>mesh.material).diffuseColor = this.color; 
-    (<StandardMaterial>mesh.material).emissiveColor = this.color;   
+    (<StandardMaterial>mesh.material).emissiveColor = this.color;  
+    
+    return mesh;
   }
 
   update() {
+    if (this.exploding) {
+      return;
+    }
+
     this.translate(Axis.Z, this.vel * this.delta, Space.LOCAL);
 
     const distance = Vector3.Distance(this.position, this.spaceship.position);
     if (distance > this.range) {
-      this.scene.unregisterBeforeRender(this.update);
-      this.dispose();
+      this.destroy();
+      return;
     }
 
+    const h = this.scene.ground.mesh.getHeightAtCoordinates(this.position.x, this.position.z);
+    if ( h > this.position.y) {
+      this.explode();
+      return;
+    }
   }
 
+  explode () {
+    this.exploding = true;
+    this.mesh.visible = false; 
+    this.mesh.scaling.z = 0;
+
+    laserExplosionParticles(this.scene, this, this.color);
+
+    setTimeout(() => {
+      this.destroy();
+    }, 1000);
+  }
+
+  destroy() {
+    this.scene.unregisterBeforeRender(this.update);
+    this.dispose();
+  }
 
 }

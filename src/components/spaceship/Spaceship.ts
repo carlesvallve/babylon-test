@@ -1,11 +1,11 @@
-import { TransformNode, Vector3, Color3, Mesh, PowerEase, Axis, Space, StandardMaterial, Quaternion } from "@babylonjs/core";
+import { AbstractMesh, Vector3, Color3, Mesh, PowerEase, Axis, Space, StandardMaterial, Quaternion, Ray } from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
-import { spaceshipParticles } from "../../utils/particles";
+import { thrusterParticles } from "../../utils/particles";
 import { addToEnvironmentEffects } from "../../utils/environment";
 import { radians } from "../../utils/math";
 import Laser from "./Laser";
 
-export default class Spaceship extends TransformNode {
+export default class Spaceship extends AbstractMesh {
   scene;
   mesh;
   material;
@@ -29,7 +29,7 @@ export default class Spaceship extends TransformNode {
 
 
   constructor(name, scene, isPure, props) {
-    super(name, scene, isPure);
+    super(name, scene)
     this.scene = scene;
 
     this.initVars();
@@ -42,6 +42,9 @@ export default class Spaceship extends TransformNode {
     this.scene.registerBeforeRender(() => {
       // delta allows us to speedup or slowdown our movements
       this.move(this.delta); 
+      // this.collisions();
+      this.detectTerrain();
+      // const hit = castRayForward(scene, this, [], 100);
     });
   }
 
@@ -86,7 +89,7 @@ export default class Spaceship extends TransformNode {
       const emitter = Mesh.CreateBox(`thruster${index}`, 0.1, this.scene);
       emitter.setParent(this);
       emitter.isVisible = true;
-      const particleSystem = spaceshipParticles(this.scene, emitter, thruster, this.color);
+      const particleSystem = thrusterParticles(this.scene, emitter, thruster, this.color);
       thrusters.push({ emitter, particleSystem });
     })
   }
@@ -164,6 +167,14 @@ export default class Spaceship extends TransformNode {
         color: this.color,
       });
     });
+  }
+
+  detectTerrain() {  
+    const ground = this.scene.ground.mesh;
+    const y = 3.5 + ground.getHeightAtCoordinates(this.position.x, this.position.z);
+    const d = y - this.position.y;
+    const div = d >= 0 ? 3 : 10;
+    this.position.y += d / div;
   }
 
 }

@@ -18,6 +18,10 @@ export const setArcCamera = (
   camera.lowerRadiusLimit = 10;
   camera.upperRadiusLimit = 50;
 
+  // scene.collisionsEnabled = true;
+  // camera.collisionRadius = new Vector3(0.5, 0.5, 0.5);
+  // camera.checkCollisions = true;
+
   camera.setPosition(pos);
   camera.attachControl(canvas, true);
 

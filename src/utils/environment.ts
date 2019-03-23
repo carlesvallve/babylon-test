@@ -18,7 +18,7 @@ export const setEnvironment = (
     clearColor: color3(Colors.black),
     ambientColor: color3(Colors.darkgrey),
     fogOptions: { mode: Scene.FOGMODE_EXP, density: 0.01, color: color3(Colors.black) },
-    glowOptions: { intensity: 0.8, color: color3(Colors.black) }
+    glowOptions: { intensity: 2.5, color: color3(Colors.black) }
   }
 ) => {
 

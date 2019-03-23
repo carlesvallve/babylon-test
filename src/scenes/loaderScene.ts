@@ -122,10 +122,10 @@ export default class LoaderScene extends Scene {
   }
 
   initGround() {
-    const size = 512;
+    const size = 1024; // 512;
     // random texture for both ground and mirror
-    // const texture = setTexture(this, 'stone-1', { x: 32, y: 32 });
-    const texture = setTexture(this, 'stone-6.jpg', { x: 24, y: 24 });
+    const texture = setTexture(this, 'stone-1.jpg', { x: 32, y: 32 });
+    // const texture = setTexture(this, 'stone-6.jpg', { x: 24, y: 24 });
 
     const bumpTexture = null; //setTexture(this, `${getFileName(texture.url)}-normal`, { x: texture.vScale, y: texture.uScale })
     
@@ -170,7 +170,7 @@ export default class LoaderScene extends Scene {
     map.isPickable = false;
     map.receiveShadows = true;
 
-    return { mesh: ground, material: ground.material, texture, mirror };
+    return { mesh: map, material: ground.material, texture, mirror }; // mesh: ground
   }
 
   loadContent() {
@@ -185,8 +185,17 @@ export default class LoaderScene extends Scene {
         return;
       }
 
-      this.initSpaceships();
-      this.initPicker()
+      // hide meshes until starting time
+      result.loadedMeshes.map((mesh) => {
+        mesh.position.y = -100; //visible = false;
+      })
+
+      // wait for starting time
+      setTimeout(() => {
+        this.initSpaceships();
+        this.initPicker()
+      }, 1000);
+      
     });
   }
 
