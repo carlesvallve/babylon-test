@@ -1,7 +1,7 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { StandardMaterial, Color3, VirtualJoystick } from '@babylonjs/core';
+import  { StandardMaterial, Color3 } from '@babylonjs/core';
 import  { PointerEventTypes, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 // import "@babylonjs/core/Meshes/meshBuilder";
 
