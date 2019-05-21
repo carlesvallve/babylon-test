@@ -1,8 +1,8 @@
 import { Scene } from "@babylonjs/core/scene";
 import { Vector3 } from "@babylonjs/core/Maths/math";
 import { Mesh } from "@babylonjs/core/Meshes/mesh";
-import  { StandardMaterial, Color3 } from '@babylonjs/core';
-import  { PointerEventTypes, VirtualJoystick, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
+import  { StandardMaterial, Color3, VirtualJoystick } from '@babylonjs/core';
+import  { PointerEventTypes, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 // import "@babylonjs/core/Meshes/meshBuilder";
 
 // camera
@@ -17,6 +17,8 @@ import { loadMesh, findMesh, setTexture, getFileName, } from "../utils/meshes";
 // spaceships
 import Spaceship from "../components/spaceship/Spaceship";
 import { getRandomItemsFromArr } from "../utils/math";
+
+import { VirtualJoystick } from '../extensions/virtualJoystickCustom/virtualJoystick';
 
 
 export default class LoaderScene extends Scene {
@@ -36,7 +38,8 @@ export default class LoaderScene extends Scene {
 
     this.loadContent();
 
-    // this.setJoystick();
+    this.setJoystickLeft();
+    this.setJoystickRight();
     this.setKeyboard();
 
   }
@@ -90,24 +93,45 @@ export default class LoaderScene extends Scene {
     camera.update();
   }
 
-  setJoystick() {
-    // this.joyL = new VirtualJoystick(true);
+  setJoystickLeft() {
+    const vj = new VirtualJoystick(true);
+    console.log(vj)
+
+    // Change the color of the virtual joystick
+    vj.setJoystickColor ('#ff0000');
+
+    // Defines a callback to call when the joystick is touched
+    vj.setActionOnTouch(() => {
+      console.log('setActionOnTouch');
+    });
+
+    // custom callback when moving the joystick
+    vj.onPointerMove = (delta) => {
+      this.selected.controlVJ(delta);
+    }
+
+    return vj;
+  }
+
+  setJoystickRight() {
     const vj = new VirtualJoystick(false);
+    console.log(vj);
 
-    /**
-    * Change the color of the virtual joystick
-    * @param newColor a string that must be a CSS color value (like "red") or the hexa value (like "#FF0000")
-    */
-   vj.setJoystickColor ('#ff0000');
-   /**
-    * Defines a callback to call when the joystick is touched
-    * @param action defines the callback
-    */
-   vj.setActionOnTouch(() => {
-     console.log('setActionOnTouch');
-   });
+    // Change the color of the virtual joystick
+    vj.setJoystickColor ('#00ffff');
+    
+    //Defines a callback to call when the joystick is touched
+    vj.setActionOnTouch(() => {
+      console.log('setActionOnTouch');
+    });
 
-   console.log(vj)
+    // custom callback when moving the joystick
+    vj.onPointerMove = (delta) => {
+      this.camera.alpha -= delta.x / 2000;
+      this.camera.beta -= delta.y / 2000;
+    }
+
+    return vj;
   }
 
 
@@ -192,8 +216,9 @@ export default class LoaderScene extends Scene {
 
       // wait for starting time
       setTimeout(() => {
-        this.initSpaceships();
-        this.initPicker()
+        this.spaceships = this.initSpaceships();
+        this.initPicker();
+        this.selectSpaceship(this.spaceships.droid);
       }, 1000);
       
     });

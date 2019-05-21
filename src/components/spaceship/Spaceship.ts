@@ -1,4 +1,15 @@
-import { AbstractMesh, Vector3, Color3, Mesh, PowerEase, Axis, Space, StandardMaterial, Quaternion, Ray } from "@babylonjs/core";
+import {
+  AbstractMesh,
+  Vector3,
+  Color3,
+  Mesh,
+  PowerEase,
+  Axis,
+  Space,
+  StandardMaterial,
+  Quaternion,
+  Ray
+} from "@babylonjs/core";
 import { randomColor3, randomColor4 } from "../../utils/colors";
 import { thrusterParticles } from "../../utils/particles";
 import { addToEnvironmentEffects } from "../../utils/environment";
@@ -12,24 +23,23 @@ export default class Spaceship extends AbstractMesh {
 
   delta;
   color;
-  
+
   vel;
   acc;
   rot;
-  
+
   traction;
   friction;
   powerRot;
 
   power;
   powerPlus;
-  powerMinus
+  powerMinus;
   powerMax;
   break;
 
-
   constructor(name, scene, isPure, props) {
-    super(name, scene)
+    super(name, scene);
     this.scene = scene;
 
     this.initVars();
@@ -41,7 +51,7 @@ export default class Spaceship extends AbstractMesh {
 
     this.scene.registerBeforeRender(() => {
       // delta allows us to speedup or slowdown our movements
-      this.move(this.delta); 
+      this.move(this.delta);
       // this.collisions();
       this.detectTerrain();
       // const hit = castRayForward(scene, this, [], 100);
@@ -49,13 +59,13 @@ export default class Spaceship extends AbstractMesh {
   }
 
   initVars() {
-    this.delta = 0.075
+    this.delta = 0.075;
     this.color = randomColor3();
 
     this.vel = { x: 0, y: 0, rot: 0 };
     this.acc = { x: 0, y: 0 };
     this.rot = 0;
-    
+
     this.friction = 0.995; // 0.998;
     this.traction = 0.5;
     this.powerRot = 35;
@@ -72,7 +82,7 @@ export default class Spaceship extends AbstractMesh {
   initMesh(mesh) {
     this.mesh = mesh; // gameObject.getChildren()[0];
     this.mesh.setParent(this);
-    this.mesh.position = Vector3.Zero();   
+    this.mesh.position = Vector3.Zero();
   }
 
   initMaterial() {
@@ -80,7 +90,7 @@ export default class Spaceship extends AbstractMesh {
     const c = randomColor3();
     this.material.diffuseColor = c;
     this.material.specularColor = new Color3(0.8, 0.8, 0.8);
-    // this.material.emissiveColor = c; 
+    // this.material.emissiveColor = c;
   }
 
   initParticles() {
@@ -89,9 +99,14 @@ export default class Spaceship extends AbstractMesh {
       const emitter = Mesh.CreateBox(`thruster${index}`, 0.1, this.scene);
       emitter.setParent(this);
       emitter.isVisible = true;
-      const particleSystem = thrusterParticles(this.scene, emitter, thruster, this.color);
+      const particleSystem = thrusterParticles(
+        this.scene,
+        emitter,
+        thruster,
+        this.color
+      );
       thrusters.push({ emitter, particleSystem });
-    })
+    });
   }
 
   // ==================================================
@@ -99,41 +114,85 @@ export default class Spaceship extends AbstractMesh {
   control(keyMap) {
     // rotate
     this.vel.rot = 0;
-    if ((keyMap.a || keyMap.A)) { // left
+    if (keyMap.a || keyMap.A) {
+      // left
       this.vel.rot = -this.powerRot;
-    } else
-    if ((keyMap.d || keyMap.D)) { // right
+    } else if (keyMap.d || keyMap.D) {
+      // right
       this.vel.rot = this.powerRot;
-    } 
-
-    // accelerate
-    if ((keyMap.w || keyMap.W)) {
-      this.power += this.powerPlus;
-      if (this.power >= this.powerMax) { this.power = this.powerMax; }
-    } 
-
-    // deaccelerate
-    if ((keyMap.s || keyMap.S)) {
-      this.power -= this.powerMinus;
-      if (this.power <= 0) { this.power = 0; }
-      this.vel.x *= this.break;
-      this.vel.y *= this.break;   
     }
 
-    if ((keyMap.space || keyMap.SPACE)) {
+    // accelerate
+    if (keyMap.w || keyMap.W) {
+      this.power += this.powerPlus;
+      if (this.power >= this.powerMax) {
+        this.power = this.powerMax;
+      }
+    }
+
+    // deaccelerate
+    if (keyMap.s || keyMap.S) {
+      this.power -= this.powerMinus;
+      if (this.power <= 0) {
+        this.power = 0;
+      }
+      this.vel.x *= this.break;
+      this.vel.y *= this.break;
+    }
+
+    if (keyMap.space || keyMap.SPACE) {
       this.shoot();
+    }
+  }
+
+  controlVJ(delta: { x: number; y: number }) {
+    this.vel.rot = 0;
+
+    // console.log(delta);
+    const d = 32;
+
+    // left
+    if (delta.x < -d) {
+      this.vel.rot = -this.powerRot;
+    }
+
+    // right
+    if (delta.x > d) {
+      this.vel.rot = this.powerRot;
+    }
+
+    // accelerate
+    if (delta.y < -d) {
+      this.power += this.powerPlus;
+      if (this.power >= this.powerMax) {
+        this.power = this.powerMax;
+      }
+    }
+
+    // break
+    if (delta.y > d) {
+      this.power -= this.powerMinus;
+      if (this.power <= 0) {
+        this.power = 0;
+      }
+      this.vel.x *= this.break;
+      this.vel.y *= this.break;
     }
   }
 
   move(delta) {
     // apply rotation
     this.rot += this.vel.rot * delta;
-    if (this.rot > 360) { this.rot -= 360; }
-    if (this.rot < 0) { this.rot += 360; }
+    if (this.rot > 360) {
+      this.rot -= 360;
+    }
+    if (this.rot < 0) {
+      this.rot += 360;
+    }
     this.rotation.y = radians(this.rot);
 
     // apply acceleration
-    var rad = ((this.rot-90) * Math.PI)/180;
+    var rad = ((this.rot - 90) * Math.PI) / 180;
     this.acc.x = this.power * Math.cos(rad);
     this.acc.y = this.power * Math.sin(rad);
 
@@ -160,23 +219,23 @@ export default class Spaceship extends AbstractMesh {
 
   shoot() {
     spaceshipData[this.name].lasers.map((pos, index) => {
-      const laser = new Laser('laser', this, {
+      const laser = new Laser("laser", this, {
         delta: this.delta,
         pos: new Vector3(pos.x, pos.y, pos.z),
         rot: this.rotation.y,
-        color: this.color,
+        color: this.color
       });
     });
   }
 
-  detectTerrain() {  
+  detectTerrain() {
     const ground = this.scene.ground.mesh;
-    const y = 3.5 + ground.getHeightAtCoordinates(this.position.x, this.position.z);
+    const y =
+      3.5 + ground.getHeightAtCoordinates(this.position.x, this.position.z);
     const d = y - this.position.y;
     const div = d >= 0 ? 3 : 10;
     this.position.y += d / div;
   }
-
 }
 
 // ==================================================
@@ -184,36 +243,40 @@ export default class Spaceship extends AbstractMesh {
 export const spaceshipData = {
   DroidFighter: {
     thrusters: [
-      { min: new Vector3(-0.4, -0.1, -2.7), max: new Vector3(0.4, 0.1, -2.7), }
+      { min: new Vector3(-0.4, -0.1, -2.7), max: new Vector3(0.4, 0.1, -2.7) }
     ],
-    lasers: [
-      { x: -2.85, y: -0.25, z: 1.85 }, { x: 2.85, y: -0.25, z: 1.85 }
-    ]
+    lasers: [{ x: -2.85, y: -0.25, z: 1.85 }, { x: 2.85, y: -0.25, z: 1.85 }]
   },
   SpeedFighter: {
     thrusters: [
-      { min: new Vector3(-1.25 -0.075, 0.275, -1.4), max: new Vector3(-1.25 + 0.075, 0.325, -1.4), },
-      { min: new Vector3(1.25 -0.075, 0.275, -1.4), max: new Vector3(1.25 + 0.075, 0.325, -1.4), }
+      {
+        min: new Vector3(-1.25 - 0.075, 0.275, -1.4),
+        max: new Vector3(-1.25 + 0.075, 0.325, -1.4)
+      },
+      {
+        min: new Vector3(1.25 - 0.075, 0.275, -1.4),
+        max: new Vector3(1.25 + 0.075, 0.325, -1.4)
+      }
     ],
-    lasers: [
-      { x: -1.2, y: 0.25, z: 0.5 }, { x: 1.2, y: 0.25, z: 0.5 }
-    ]
+    lasers: [{ x: -1.2, y: 0.25, z: 0.5 }, { x: 1.2, y: 0.25, z: 0.5 }]
   },
   SharkFighter: {
     thrusters: [
-      { min: new Vector3(-0.2, -0.2, -2.1), max: new Vector3(0.2, 0.2, -2.1), }
+      { min: new Vector3(-0.2, -0.2, -2.1), max: new Vector3(0.2, 0.2, -2.1) }
     ],
-    lasers: [
-      { x: 0, y: -0.5, z: 3.25 }
-    ]
+    lasers: [{ x: 0, y: -0.5, z: 3.25 }]
   },
   StarFighter: {
     thrusters: [
-      { min: new Vector3(-0.7 -0.15, 0.125, -1.7), max: new Vector3(-0.7 + 0.15, 0.375, -1.7), },
-      { min: new Vector3(0.7 -0.15, 0.125, -1.7), max: new Vector3(0.7 + 0.15, 0.375, -1.7), }
+      {
+        min: new Vector3(-0.7 - 0.15, 0.125, -1.7),
+        max: new Vector3(-0.7 + 0.15, 0.375, -1.7)
+      },
+      {
+        min: new Vector3(0.7 - 0.15, 0.125, -1.7),
+        max: new Vector3(0.7 + 0.15, 0.375, -1.7)
+      }
     ],
-    lasers: [
-      { x: -0.1, y: -0.65, z: 3.6 }, { x: 0.1, y: -0.65, z: 3.6 }
-    ]
+    lasers: [{ x: -0.1, y: -0.65, z: 3.6 }, { x: 0.1, y: -0.65, z: 3.6 }]
   }
 };
